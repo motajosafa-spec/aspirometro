@@ -466,6 +466,7 @@ let lastCarTime   = null;
 const CARD_W      = 104;
 const SPEED_BASE  = 40;   // velocidade normal px/s
 let carouselSpeed = SPEED_BASE;  // velocidade atual (pode ser negativa = esquerda)
+let isDragging    = false; // true durante swipe do carrossel
 
 (function initCarousel() {
     const track = document.getElementById('carouselTrack');
@@ -654,6 +655,96 @@ function startCarousel() {
     animId = requestAnimationFrame(step);
 })();
 
+// ── Touch drag global ─────────────────────────────────────────────────────
+let _touchDragIdx   = null;
+let _touchDragCard  = null;
+const ghost         = document.getElementById('dragGhost');
+const ghostImg      = document.getElementById('dragGhostImg');
+
+function startTouchDrag(touch, idx, card) {
+    _touchDragIdx  = idx;
+    _touchDragCard = card;
+    card.classList.add('dragging');
+
+    // Clona imagem para o fantasma
+    const srcImg = card.querySelector('img');
+    ghostImg.src = (srcImg && srcImg.style.display !== 'none') ? srcImg.src : '';
+    ghost.style.display = 'block';
+    ghost.style.left = touch.clientX + 'px';
+    ghost.style.top  = touch.clientY + 'px';
+
+    // Para o carrossel durante o drag
+    cancelAnimationFrame(carouselAnim);
+    lastCarTime = null;
+
+    document.addEventListener('touchmove',   onTouchDragMove,   { passive: false });
+    document.addEventListener('touchend',    onTouchDragEnd,    { passive: true  });
+    document.addEventListener('touchcancel', onTouchDragCancel, { passive: true  });
+}
+
+function onTouchDragMove(e) {
+    if (_touchDragIdx === null) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    ghost.style.left = t.clientX + 'px';
+    ghost.style.top  = t.clientY + 'px';
+
+    // Destaca slot sob o dedo
+    document.querySelectorAll('.spotlight-slot').forEach(s => s.classList.remove('drag-over'));
+    const el   = document.elementFromPoint(t.clientX, t.clientY);
+    const slot = el && el.closest('.spotlight-slot');
+    if (slot) slot.classList.add('drag-over');
+}
+
+function onTouchDragEnd(e) {
+    if (_touchDragIdx === null) return;
+    ghost.style.display = 'none';
+    document.querySelectorAll('.spotlight-slot').forEach(s => s.classList.remove('drag-over'));
+    if (_touchDragCard) _touchDragCard.classList.remove('dragging');
+
+    const t    = e.changedTouches[0];
+    const el   = document.elementFromPoint(t.clientX, t.clientY);
+    const slot = el && el.closest('.spotlight-slot');
+    if (slot) fillSlot(slot.id === 'slotLeft' ? 'left' : 'right', _touchDragIdx);
+
+    _touchDragIdx  = null;
+    _touchDragCard = null;
+    // Retoma carrossel
+    carouselAnim = requestAnimationFrame(function step(ts) {
+        if (!lastCarTime) lastCarTime = ts;
+        const delta = ts - lastCarTime; lastCarTime = ts;
+        const totalW = ASPIRANTES.length * CARD_W;
+        if (!isDragging) {
+            const diff = SPEED_BASE - carouselSpeed;
+            carouselSpeed += diff * Math.min(delta / 400, 1);
+        }
+        carouselPos += carouselSpeed * delta / 1000;
+        if (carouselPos >= totalW * 2) carouselPos -= totalW;
+        if (carouselPos < 0)           carouselPos += totalW;
+        const track = document.getElementById('carouselTrack');
+        track.style.transform = 'translateX(-' + carouselPos + 'px)';
+        const vp = track.parentElement;
+        const centerX = carouselPos + vp.clientWidth / 2;
+        const idx = Math.abs(Math.floor(centerX / CARD_W)) % ASPIRANTES.length;
+        if (idx !== carouselIndex) { carouselIndex = idx; updateCarouselInfo(); }
+        carouselAnim = requestAnimationFrame(step);
+    });
+
+    document.removeEventListener('touchmove',   onTouchDragMove);
+    document.removeEventListener('touchend',    onTouchDragEnd);
+    document.removeEventListener('touchcancel', onTouchDragCancel);
+}
+
+function onTouchDragCancel() {
+    ghost.style.display = 'none';
+    document.querySelectorAll('.spotlight-slot').forEach(s => s.classList.remove('drag-over'));
+    if (_touchDragCard) _touchDragCard.classList.remove('dragging');
+    _touchDragIdx = null; _touchDragCard = null;
+    document.removeEventListener('touchmove',   onTouchDragMove);
+    document.removeEventListener('touchend',    onTouchDragEnd);
+    document.removeEventListener('touchcancel', onTouchDragCancel);
+}
+
 // ── Slots de destaque ─────────────────────────────────────────────────────
 function onSlotDragOver(e) {
     e.preventDefault();
@@ -669,27 +760,28 @@ function onSlotDrop(e, side) {
     if (!isNaN(idx)) fillSlot(side, idx);
 }
 function fillSlot(side, idx) {
-    const a      = ASPIRANTES[idx];
-    const imgEl  = document.getElementById('slot' + (side==='left'?'Left':'Right') + 'Img');
-    const label  = document.getElementById('slot' + (side==='left'?'Left':'Right') + 'Label');
-    const slot   = document.getElementById('slot' + (side==='left'?'Left':'Right'));
-    const exts   = ['jpg','jpeg','JPG','JPEG'];
-    let tried    = 0;
+    const a     = ASPIRANTES[idx];
+    const key   = side === 'left' ? 'Left' : 'Right';
+    const imgEl = document.getElementById('slot' + key + 'Img');
+    const label = document.getElementById('slot' + key + 'Label');
+    const slot  = document.getElementById('slot' + key);
+    const exts  = ['jpg','jpeg','JPG','JPEG'];
+    let tried   = 0;
     function tryNext() {
-        if (tried >= exts.length) { imgEl.src=''; slot.classList.remove('filled'); return; }
+        if (tried >= exts.length) { slot.classList.remove('filled'); return; }
         imgEl.src = 'fotos/' + a.num + '.' + exts[tried++];
     }
-    imgEl.onload  = () => { slot.classList.add('filled'); };
+    imgEl.onload  = () => slot.classList.add('filled');
     imgEl.onerror = () => tryNext();
-    // Nome abreviado
-    const partes = a.nome.split(' ');
-    label.textContent = a.posto + ' ' + (partes.length>2 ? partes[0]+' '+partes[partes.length-1] : a.nome);
+    const p = a.nome.split(' ');
+    label.textContent = a.posto + '\n' + (p.length > 2 ? p[0] + ' ' + p[p.length-1] : a.nome);
     tryNext();
 }
 function clearSlot(side) {
-    const imgEl = document.getElementById('slot'+(side==='left'?'Left':'Right')+'Img');
-    const label = document.getElementById('slot'+(side==='left'?'Left':'Right')+'Label');
-    const slot  = document.getElementById('slot'+(side==='left'?'Left':'Right'));
+    const key   = side === 'left' ? 'Left' : 'Right';
+    const imgEl = document.getElementById('slot' + key + 'Img');
+    const label = document.getElementById('slot' + key + 'Label');
+    const slot  = document.getElementById('slot' + key);
     imgEl.src = ''; label.textContent = ''; slot.classList.remove('filled');
 }
 
