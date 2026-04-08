@@ -68,6 +68,43 @@
         #dragGhost img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
         .carousel-card.dragging{opacity:0.4;}
 
+        /* Popup menu para mobile */
+        #slotMenu{
+            position:fixed;inset:0;z-index:500;
+            display:none;align-items:flex-end;justify-content:center;
+            background:rgba(0,0,0,.6);
+        }
+        #slotMenu.show{display:flex;}
+        .slot-menu-box{
+            background:#0e0c08;
+            border:1px solid var(--gold-dim);
+            border-radius:16px 16px 0 0;
+            padding:20px 24px 32px;
+            width:100%;max-width:480px;
+            text-align:center;
+        }
+        .slot-menu-title{
+            font-family:'Cinzel Decorative',serif;
+            font-size:.8rem;letter-spacing:3px;color:var(--gold);
+            margin-bottom:6px;
+        }
+        .slot-menu-name{
+            font-size:.65rem;color:var(--text-muted);
+            letter-spacing:1px;margin-bottom:18px;
+        }
+        .slot-menu-btns{display:flex;gap:12px;justify-content:center;}
+        .slot-menu-btn{
+            flex:1;padding:12px 6px;border:none;border-radius:8px;
+            font-family:'Cinzel',serif;font-weight:700;font-size:.72rem;
+            letter-spacing:1.5px;cursor:pointer;
+            background:linear-gradient(135deg,var(--gold-dim),var(--gold),var(--gold-light));
+            color:#0a0808;
+        }
+        .slot-menu-btn.cancel{
+            background:transparent;border:1px solid var(--gold-dim);
+            color:var(--text-muted);flex:0 0 auto;padding:12px 18px;
+        }
+
         /* ── Carrossel de fotos ── */
         .carousel-wrap{width:100%;margin:10px 0 6px;position:relative;}
         .carousel-label{font-family:'Cinzel Decorative',serif;font-size:.72rem;letter-spacing:3px;color:var(--gold-dim);text-align:center;margin-bottom:8px;text-transform:uppercase;}
@@ -131,6 +168,20 @@
 <body>
 
 <div id="dragGhost"><img id="dragGhostImg" src="" alt=""></div>
+
+<!-- Popup mobile para escolher slot -->
+<div id="slotMenu">
+    <div class="slot-menu-box">
+        <div class="slot-menu-title">📌 Fixar em Destaque</div>
+        <div class="slot-menu-name" id="slotMenuName"></div>
+        <div class="slot-menu-btns">
+            <button class="slot-menu-btn" onclick="slotMenuChoose('left')">⬅ Slot Esquerdo</button>
+            <button class="slot-menu-btn" onclick="slotMenuChoose('right')">Slot Direito ➡</button>
+            <button class="slot-menu-btn cancel" onclick="closeSlotMenu()">✕</button>
+        </div>
+    </div>
+</div>
+
 <div class="particles" id="particles"></div>
 <div class="top-border"></div>
 
@@ -498,7 +549,16 @@ let isDragging    = false; // true durante swipe do carrossel
         const partes = a.nome.split(' ');
         nome.textContent = partes.length > 2 ? partes[0]+' '+partes[partes.length-1] : a.nome;
         card.appendChild(ring); card.appendChild(posto); card.appendChild(nome);
-        card.addEventListener('click', () => { carouselIndex = parseInt(card.dataset.idx); updateCarouselInfo(); });
+
+        // Click/tap: abre menu para escolher slot (mobile) ou destaca (desktop)
+        card.addEventListener('click', (e) => {
+            carouselIndex = parseInt(card.dataset.idx);
+            updateCarouselInfo();
+            // No mobile mostra popup para escolher slot
+            if (window.matchMedia('(pointer:coarse)').matches) {
+                showSlotMenu(parseInt(card.dataset.idx));
+            }
+        });
 
         // Drag desktop
         card.setAttribute('draggable', true);
@@ -508,17 +568,6 @@ let isDragging    = false; // true durante swipe do carrossel
         });
         card.addEventListener('dragend', () => card.classList.remove('dragging'));
 
-        // Touch drag mobile — long press 350ms inicia o arrasto
-        let touchTimer = null;
-        let myIdx = i % ASPIRANTES.length;
-        card.addEventListener('touchstart', (e) => {
-            touchTimer = setTimeout(() => {
-                startTouchDrag(e.touches[0], myIdx, card);
-            }, 350);
-        }, { passive: true });
-        card.addEventListener('touchmove',  () => clearTimeout(touchTimer), { passive: true });
-        card.addEventListener('touchend',   () => clearTimeout(touchTimer));
-        card.addEventListener('touchcancel',() => clearTimeout(touchTimer));
         track.appendChild(card);
     });
     updateCarouselInfo();
@@ -655,95 +704,29 @@ function startCarousel() {
     animId = requestAnimationFrame(step);
 })();
 
-// ── Touch drag global ─────────────────────────────────────────────────────
-let _touchDragIdx   = null;
-let _touchDragCard  = null;
-const ghost         = document.getElementById('dragGhost');
-const ghostImg      = document.getElementById('dragGhostImg');
+// ── Popup mobile para escolher slot ───────────────────────────────────────
+let _menuIdx = null;
 
-function startTouchDrag(touch, idx, card) {
-    _touchDragIdx  = idx;
-    _touchDragCard = card;
-    card.classList.add('dragging');
-
-    // Clona imagem para o fantasma
-    const srcImg = card.querySelector('img');
-    ghostImg.src = (srcImg && srcImg.style.display !== 'none') ? srcImg.src : '';
-    ghost.style.display = 'block';
-    ghost.style.left = touch.clientX + 'px';
-    ghost.style.top  = touch.clientY + 'px';
-
-    // Para o carrossel durante o drag
-    cancelAnimationFrame(carouselAnim);
-    lastCarTime = null;
-
-    document.addEventListener('touchmove',   onTouchDragMove,   { passive: false });
-    document.addEventListener('touchend',    onTouchDragEnd,    { passive: true  });
-    document.addEventListener('touchcancel', onTouchDragCancel, { passive: true  });
+function showSlotMenu(idx) {
+    _menuIdx = idx;
+    const a = ASPIRANTES[idx];
+    const p = a.nome.split(' ');
+    document.getElementById('slotMenuName').textContent =
+        a.posto + ' · ' + (p.length > 2 ? p[0] + ' ' + p[p.length-1] : a.nome);
+    document.getElementById('slotMenu').classList.add('show');
 }
-
-function onTouchDragMove(e) {
-    if (_touchDragIdx === null) return;
-    e.preventDefault();
-    const t = e.touches[0];
-    ghost.style.left = t.clientX + 'px';
-    ghost.style.top  = t.clientY + 'px';
-
-    // Destaca slot sob o dedo
-    document.querySelectorAll('.spotlight-slot').forEach(s => s.classList.remove('drag-over'));
-    const el   = document.elementFromPoint(t.clientX, t.clientY);
-    const slot = el && el.closest('.spotlight-slot');
-    if (slot) slot.classList.add('drag-over');
+function closeSlotMenu() {
+    document.getElementById('slotMenu').classList.remove('show');
+    _menuIdx = null;
 }
-
-function onTouchDragEnd(e) {
-    if (_touchDragIdx === null) return;
-    ghost.style.display = 'none';
-    document.querySelectorAll('.spotlight-slot').forEach(s => s.classList.remove('drag-over'));
-    if (_touchDragCard) _touchDragCard.classList.remove('dragging');
-
-    const t    = e.changedTouches[0];
-    const el   = document.elementFromPoint(t.clientX, t.clientY);
-    const slot = el && el.closest('.spotlight-slot');
-    if (slot) fillSlot(slot.id === 'slotLeft' ? 'left' : 'right', _touchDragIdx);
-
-    _touchDragIdx  = null;
-    _touchDragCard = null;
-    // Retoma carrossel
-    carouselAnim = requestAnimationFrame(function step(ts) {
-        if (!lastCarTime) lastCarTime = ts;
-        const delta = ts - lastCarTime; lastCarTime = ts;
-        const totalW = ASPIRANTES.length * CARD_W;
-        if (!isDragging) {
-            const diff = SPEED_BASE - carouselSpeed;
-            carouselSpeed += diff * Math.min(delta / 400, 1);
-        }
-        carouselPos += carouselSpeed * delta / 1000;
-        if (carouselPos >= totalW * 2) carouselPos -= totalW;
-        if (carouselPos < 0)           carouselPos += totalW;
-        const track = document.getElementById('carouselTrack');
-        track.style.transform = 'translateX(-' + carouselPos + 'px)';
-        const vp = track.parentElement;
-        const centerX = carouselPos + vp.clientWidth / 2;
-        const idx = Math.abs(Math.floor(centerX / CARD_W)) % ASPIRANTES.length;
-        if (idx !== carouselIndex) { carouselIndex = idx; updateCarouselInfo(); }
-        carouselAnim = requestAnimationFrame(step);
-    });
-
-    document.removeEventListener('touchmove',   onTouchDragMove);
-    document.removeEventListener('touchend',    onTouchDragEnd);
-    document.removeEventListener('touchcancel', onTouchDragCancel);
+function slotMenuChoose(side) {
+    if (_menuIdx !== null) fillSlot(side, _menuIdx);
+    closeSlotMenu();
 }
-
-function onTouchDragCancel() {
-    ghost.style.display = 'none';
-    document.querySelectorAll('.spotlight-slot').forEach(s => s.classList.remove('drag-over'));
-    if (_touchDragCard) _touchDragCard.classList.remove('dragging');
-    _touchDragIdx = null; _touchDragCard = null;
-    document.removeEventListener('touchmove',   onTouchDragMove);
-    document.removeEventListener('touchend',    onTouchDragEnd);
-    document.removeEventListener('touchcancel', onTouchDragCancel);
-}
+// Fecha ao clicar fora
+document.getElementById('slotMenu').addEventListener('click', function(e) {
+    if (e.target === this) closeSlotMenu();
+});
 
 // ── Slots de destaque ─────────────────────────────────────────────────────
 function onSlotDragOver(e) {
