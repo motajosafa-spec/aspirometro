@@ -39,7 +39,7 @@
             position:relative;transition:border-color .3s,box-shadow .3s;
             cursor:pointer;flex-shrink:0;
         }
-        .spotlight-slot.drag-over{border-color:var(--gold-light);box-shadow:0 0 18px rgba(212,175,55,.6);border-style:solid;}
+        .spotlight-slot.drag-over{border-color:var(--gold-light);box-shadow:0 0 18px rgba(212,175,55,.6);border-style:solid;transform:scale(1.08);}
         .spotlight-slot.filled{border-style:solid;border-color:var(--gold);}
         .spotlight-slot .slot-hint{font-size:.42rem;letter-spacing:1px;color:var(--text-muted);text-align:center;padding:4px;line-height:1.4;}
         .spotlight-slot img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:none;}
@@ -55,6 +55,18 @@
             z-index:10;
         }
         .spotlight-slot.filled .slot-clear{display:flex;}
+
+        /* Elemento fantasma que segue o dedo */
+        #dragGhost{
+            position:fixed;width:60px;height:60px;border-radius:50%;
+            border:2px solid var(--gold-light);
+            box-shadow:0 0 16px rgba(212,175,55,.8);
+            pointer-events:none;z-index:999;
+            transform:translate(-50%,-50%);
+            display:none;overflow:hidden;background:#000;
+        }
+        #dragGhost img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+        .carousel-card.dragging{opacity:0.4;}
 
         /* ── Carrossel de fotos ── */
         .carousel-wrap{width:100%;margin:10px 0 6px;position:relative;}
@@ -118,6 +130,7 @@
 </head>
 <body>
 
+<div id="dragGhost"><img id="dragGhostImg" src="" alt=""></div>
 <div class="particles" id="particles"></div>
 <div class="top-border"></div>
 
@@ -486,49 +499,25 @@ let carouselSpeed = SPEED_BASE;  // velocidade atual (pode ser negativa = esquer
         card.appendChild(ring); card.appendChild(posto); card.appendChild(nome);
         card.addEventListener('click', () => { carouselIndex = parseInt(card.dataset.idx); updateCarouselInfo(); });
 
-        // Drag para desktop
+        // Drag desktop
         card.setAttribute('draggable', true);
         card.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('aspirante-idx', i % ASPIRANTES.length);
+            card.classList.add('dragging');
         });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
 
-        // Touch-drag para mobile (long press 400ms → inicia drag)
+        // Touch drag mobile — long press 350ms inicia o arrasto
         let touchTimer = null;
-        let touchDragging = false;
+        let myIdx = i % ASPIRANTES.length;
         card.addEventListener('touchstart', (e) => {
             touchTimer = setTimeout(() => {
-                touchDragging = true;
-                card.style.opacity = '0.5';
-                window._dragIdx = i % ASPIRANTES.length;
-            }, 400);
+                startTouchDrag(e.touches[0], myIdx, card);
+            }, 350);
         }, { passive: true });
-        card.addEventListener('touchend', () => {
-            clearTimeout(touchTimer);
-            if (touchDragging) { card.style.opacity = '1'; touchDragging = false; }
-        });
-        card.addEventListener('touchmove', (e) => {
-            if (!touchDragging) { clearTimeout(touchTimer); return; }
-            e.preventDefault();
-            const touch = e.touches[0];
-            const el = document.elementFromPoint(touch.clientX, touch.clientY);
-            // Destaca o slot sob o dedo
-            document.querySelectorAll('.spotlight-slot').forEach(s => s.classList.remove('drag-over'));
-            const slot = el && el.closest('.spotlight-slot');
-            if (slot) slot.classList.add('drag-over');
-        }, { passive: false });
-        card.addEventListener('touchend', (e) => {
-            if (!touchDragging) return;
-            card.style.opacity = '1';
-            touchDragging = false;
-            document.querySelectorAll('.spotlight-slot').forEach(s => s.classList.remove('drag-over'));
-            const touch = e.changedTouches[0];
-            const el = document.elementFromPoint(touch.clientX, touch.clientY);
-            const slot = el && el.closest('.spotlight-slot');
-            if (slot) {
-                const side = slot.id === 'slotLeft' ? 'left' : 'right';
-                fillSlot(side, window._dragIdx);
-            }
-        });
+        card.addEventListener('touchmove',  () => clearTimeout(touchTimer), { passive: true });
+        card.addEventListener('touchend',   () => clearTimeout(touchTimer));
+        card.addEventListener('touchcancel',() => clearTimeout(touchTimer));
         track.appendChild(card);
     });
     updateCarouselInfo();
