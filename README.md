@@ -1,2 +1,0 @@
-# aspirometro
-Contagem regressiva 
