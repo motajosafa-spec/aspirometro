@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aspirômetro 2026 – CFOA/PMBA</title>
+    <meta property="og:title" content="⚔️ Aspirômetro 2026 – CFOA/PMBA">
+    <meta property="og:description" content="Dracones Bicentenarii · Turma Cap PM Almir Souza Santos · Contagem regressiva para a formatura">
+    <meta property="og:type" content="website">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold:       #d4af37;
+            --gold-light: #f5e080;
+            --gold-dim:   #8b6f20;
+            --gold-glow:  rgba(212,175,55,0.35);
+            --text-muted: #6a5f3a;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            min-height:100vh;
+            background:#060608;
+            font-family:'Cinzel',serif;
+            color:var(--gold);
+            display:flex; flex-direction:column; align-items:center;
+            overflow-x:hidden; position:relative;
+        }
+        body::before {
+            content:''; position:fixed; inset:0;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% 0%,rgba(100,70,10,.22) 0%,transparent 70%),
+                radial-gradient(ellipse 60% 40% at 50% 100%,rgba(80,10,10,.18) 0%,transparent 60%),
+                repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(212,175,55,.02) 2px,rgba(212,175,55,.02) 4px);
+            pointer-events:none; z-index:0;
+        }
+        body::after {
+            content:''; position:fixed; inset:0;
+            background:
+                linear-gradient(90deg,rgba(212,175,55,.12) 0px,transparent 6px),
+                linear-gradient(270deg,rgba(212,175,55,.12) 0px,transparent 6px),
+                linear-gradient(180deg,rgba(212,175,55,.18) 0px,transparent 40px),
+                linear-gradient(0deg,rgba(212,175,55,.18) 0px,transparent 40px);
+            pointer-events:none; z-index:0;
+        }
+        .wrapper { position:relative; z-index:1; width:100%; max-width:480px; padding:0 18px 100px; display:flex; flex-direction:column; align-items:center; }
+        .top-border { width:100%; height:4px; background:linear-gradient(90deg,transparent,var(--gold-dim),var(--gold),var(--gold-light),var(--gold),var(--gold-dim),transparent); }
+        .header { text-align:center; padding:28px 10px 10px; }
+        .header-sup { font-size:.62rem; letter-spacing:5px; color:var(--gold-dim); text-transform:uppercase; margin-bottom:8px; }
+        .header h1 { font-family:'Cinzel Decorative',serif; font-size:2rem; font-weight:700; color:var(--gold-light); text-shadow:0 0 18px rgba(212,175,55,.7),0 2px 6px rgba(0,0,0,.8); letter-spacing:2px; line-height:1.1; }
+        .header-sub { font-family:'IM Fell English',serif; font-style:italic; font-size:.85rem; color:var(--gold-dim); margin-top:6px; }
+        .crest-wrap { margin:18px 0 8px; }
+        .crest-svg { width:110px; height:110px; filter:drop-shadow(0 0 14px rgba(212,175,55,.55)); animation:crest-pulse 3.5s ease-in-out infinite; }
+        @keyframes crest-pulse { 0%,100%{filter:drop-shadow(0 0 12px rgba(212,175,55,.45))} 50%{filter:drop-shadow(0 0 24px rgba(212,175,55,.85))} }
+        .divider { width:100%; display:flex; align-items:center; gap:10px; margin:10px 0; }
+        .divider-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,var(--gold-dim),var(--gold),var(--gold-dim),transparent); }
+        .divider-gem { color:var(--gold); font-size:.85rem; }
+        .turma-tag { font-size:.6rem; letter-spacing:4px; text-transform:uppercase; color:var(--text-muted); text-align:center; margin-bottom:4px; }
+        .motto { font-family:'IM Fell English',serif; font-style:italic; font-size:.72rem; color:var(--text-muted); text-align:center; letter-spacing:1px; }
+        .url-badge { display:none; background:rgba(212,175,55,.1); border:1px solid var(--gold-dim); border-radius:20px; padding:5px 14px; font-size:.6rem; letter-spacing:2px; color:var(--gold-dim); text-transform:uppercase; margin-bottom:8px; }
+        .url-badge.show { display:inline-block; }
+        .falta-label { font-family:'Cinzel Decorative',serif; font-size:1.1rem; color:var(--gold); text-align:center; margin:12px 0 4px; letter-spacing:2px; text-shadow:0 0 10px rgba(212,175,55,.5); min-height:1.6rem; }
+        .timer { display:flex; justify-content:center; gap:10px; margin:8px 0 10px; width:100%; }
+        .time-box { flex:1; background:linear-gradient(160deg,rgba(212,175,55,.08) 0%,rgba(0,0,0,.5) 100%); border:1px solid var(--gold-dim); border-radius:6px; padding:14px 6px 10px; text-align:center; position:relative; overflow:hidden; box-shadow:inset 0 1px 0 rgba(212,175,55,.25),0 4px 16px rgba(0,0,0,.6); }
+        .time-box::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--gold-light),transparent); }
+        .time-value { display:block; font-family:'Cinzel',serif; font-size:2.4rem; font-weight:900; color:var(--gold-light); line-height:1; text-shadow:0 0 20px rgba(212,175,55,.8),0 2px 4px rgba(0,0,0,.9); transition:transform .15s ease,color .15s ease; }
+        .time-value.tick { transform:scale(1.06); color:#fff8dc; }
+        .time-label { font-size:.55rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:3px; margin-top:6px; }
+        .time-sep { display:flex; align-items:center; color:var(--gold-dim); font-size:1.6rem; font-weight:900; padding-bottom:16px; }
+        .event-info { font-family:'IM Fell English',serif; font-style:italic; font-size:.82rem; color:var(--text-muted); text-align:center; margin:4px 0 10px; min-height:1.2rem; }
+        .event-info span { color:var(--gold); font-style:normal; }
+        .progress-wrap { width:100%; margin:6px 0 16px; }
+        .progress-label { display:flex; justify-content:space-between; font-size:.58rem; letter-spacing:2px; color:var(--text-muted); margin-bottom:4px; }
+        .progress-bar-bg { width:100%; height:6px; background:rgba(255,255,255,.06); border-radius:3px; border:1px solid rgba(212,175,55,.15); overflow:hidden; }
+        .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--gold-dim),var(--gold),var(--gold-light)); border-radius:3px; transition:width 1s linear; box-shadow:0 0 8px rgba(212,175,55,.5); }
+
+        /* Modal de configuração */
+        .config-panel { position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:300; display:none; align-items:center; justify-content:center; padding:20px; }
+        .config-panel.show { display:flex; }
+        .config-box { background:#0e0c08; border:1px solid var(--gold-dim); border-radius:12px; padding:28px 24px; width:100%; max-width:380px; box-shadow:0 0 40px rgba(212,175,55,.2); }
+        .config-box h3 { font-family:'Cinzel Decorative',serif; color:var(--gold); font-size:.95rem; margin-bottom:20px; text-align:center; letter-spacing:2px; }
+        label.field-label { display:block; font-size:.62rem; letter-spacing:3px; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; }
+        input[type="datetime-local"] { width:100%; padding:11px 14px; margin-bottom:18px; border:1px solid var(--gold-dim); border-radius:6px; background:rgba(212,175,55,.07); color:var(--gold-light); font-family:'Cinzel',serif; font-size:.9rem; outline:none; }
+        input[type="datetime-local"]:focus { border-color:var(--gold); box-shadow:0 0 10px var(--gold-glow); }
+        .link-result { display:none; margin-top:16px; padding:14px; background:rgba(212,175,55,.07); border:1px solid var(--gold-dim); border-radius:8px; }
+        .link-result.show { display:block; }
+        .link-result p { font-size:.7rem; color:var(--text-muted); margin-bottom:8px; letter-spacing:1px; }
+        .link-result code { display:block; font-size:.72rem; color:var(--gold-light); word-break:break-all; background:rgba(0,0,0,.4); padding:8px 10px; border-radius:4px; margin-bottom:10px; font-family:monospace; }
+        .btn-row { display:flex; gap:10px; }
+        button { flex:1; padding:11px 0; border:none; border-radius:6px; font-family:'Cinzel',serif; font-weight:700; font-size:.78rem; letter-spacing:1.5px; cursor:pointer; transition:all .2s; }
+        .btn-primary { background:linear-gradient(135deg,var(--gold-dim),var(--gold),var(--gold-light)); color:#0a0808; box-shadow:0 4px 14px rgba(212,175,55,.35); }
+        .btn-primary:hover { filter:brightness(1.1); transform:translateY(-1px); }
+        .btn-primary:active { transform:scale(.97); }
+        .btn-secondary { background:transparent; border:1px solid var(--gold-dim); color:var(--text-muted); }
+        .btn-secondary:hover { border-color:var(--gold); color:var(--gold); }
+        .btn-copy { background:rgba(212,175,55,.15); border:1px solid var(--gold-dim); color:var(--gold); font-size:.72rem; padding:8px; flex:1; }
+        .btn-float { position:fixed; bottom:24px; right:20px; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,rgba(30,20,5,.95),rgba(60,40,8,.95)); border:1px solid var(--gold-dim)!important; color:var(--gold)!important; font-size:1.2rem; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(0,0,0,.7),0 0 10px rgba(212,175,55,.2); z-index:100; padding:0; flex:unset; letter-spacing:0; }
+        .btn-float:hover { box-shadow:0 4px 20px rgba(212,175,55,.4); transform:scale(1.05); }
+        .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(212,175,55,.97); color:#0a0808; font-family:'Cinzel',serif; font-size:.78rem; font-weight:700; padding:10px 22px; border-radius:20px; opacity:0; transition:all .3s; z-index:400; pointer-events:none; white-space:nowrap; }
+        .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+        .finished { display:none; text-align:center; padding:20px 10px; }
+        .finished.show { display:block; }
+        .finished-icon { font-size:3.5rem; margin-bottom:14px; animation:bounce 1s ease infinite alternate; }
+        @keyframes bounce { from{transform:translateY(0)} to{transform:translateY(-10px)} }
+        .finished h2 { font-family:'Cinzel Decorative',serif; font-size:1.5rem; color:var(--gold-light); text-shadow:0 0 20px rgba(212,175,55,.8); margin-bottom:8px; }
+        .finished p { font-family:'IM Fell English',serif; font-style:italic; color:var(--text-muted); font-size:.95rem; }
+        .particles { position:fixed; inset:0; pointer-events:none; z-index:200; display:none; }
+        .particles.show { display:block; }
+        .particle { position:absolute; width:5px; height:10px; background:var(--gold); border-radius:2px; animation:fall linear forwards; }
+        @keyframes fall { from{transform:translateY(-20px) rotate(0deg);opacity:1} to{transform:translateY(110vh) rotate(720deg);opacity:0} }
+        .fade-in { animation:fadeIn .8s ease forwards; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        .delay-1{animation-delay:.15s;opacity:0} .delay-2{animation-delay:.3s;opacity:0} .delay-3{animation-delay:.45s;opacity:0} .delay-4{animation-delay:.6s;opacity:0}
+    </style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<!-- Modal config -->
+<div class="config-panel" id="configPanel">
+    <div class="config-box">
+        <h3>⚙ Configurar Formatura</h3>
+        <label class="field-label">Data e hora da formatura</label>
+        <input type="datetime-local" id="targetDate">
+        <div class="btn-row" style="margin-bottom:10px">
+            <button class="btn-primary" onclick="generateLink()">🔗 Gerar Link</button>
+            <button class="btn-secondary" onclick="closeConfig()">✕ Fechar</button>
+        </div>
+        <div class="link-result" id="linkResult">
+            <p>📲 COPIE E ENVIE NO WHATSAPP:</p>
+            <code id="generatedLink"></code>
+            <div class="btn-row">
+                <button class="btn-copy" onclick="copyLink()">📋 Copiar</button>
+                <button class="btn-copy" onclick="testLink()">👁 Testar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="top-border"></div>
+
+<div class="wrapper">
+
+    <div class="header fade-in">
+        <p class="header-sup">Dracones Bicentenarii</p>
+        <h1>⚔️ Aspirômetro</h1>
+        <p class="header-sub">Turma Cap PM Almir Souza Santos</p>
+    </div>
+
+    <div class="crest-wrap fade-in delay-1">
+        <svg class="crest-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <g opacity=".75">
+                <line x1="20" y1="20" x2="100" y2="100" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/>
+                <line x1="100" y1="20" x2="20" y2="100" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/>
+                <rect x="56" y="14" width="8" height="3" rx="1" fill="#d4af37"/>
+                <rect x="56" y="103" width="8" height="3" rx="1" fill="#d4af37"/>
+                <rect x="14" y="56" width="3" height="8" rx="1" fill="#d4af37"/>
+                <rect x="103" y="56" width="3" height="8" rx="1" fill="#d4af37"/>
+            </g>
+            <path d="M35 32 L85 32 L85 72 Q85 90 60 100 Q35 90 35 72 Z" fill="#0d1b3e" stroke="#d4af37" stroke-width="2.5"/>
+            <path d="M60 32 L85 32 L85 72 Q85 90 60 100 Z" fill="#7b1a1a"/>
+            <line x1="60" y1="32" x2="60" y2="100" stroke="#d4af37" stroke-width="1.5" opacity=".8"/>
+            <text x="47" y="70" text-anchor="middle" font-size="20" fill="#d4af37" opacity=".9">🐉</text>
+            <text x="73" y="70" text-anchor="middle" font-size="14" fill="#d4af37" opacity=".9">⚔️</text>
+            <text x="42" y="82" text-anchor="middle" font-family="serif" font-size="6" fill="#d4af37" font-weight="bold">CFOA</text>
+            <text x="76" y="82" text-anchor="middle" font-family="serif" font-size="6" fill="#d4af37" font-weight="bold">PMBA</text>
+            <text x="60" y="26" text-anchor="middle" font-size="10" fill="#f5e080">★</text>
+        </svg>
+    </div>
+
+    <div class="turma-tag fade-in delay-1">Aspirantes 2026 · CFOA/PMBA</div>
+    <div class="url-badge fade-in delay-1" id="urlBadge">📎 Contagem via link</div>
+    <p class="motto fade-in delay-1">Honor · Disciplina · Coragem</p>
+
+    <div class="divider fade-in delay-2"><div class="divider-line"></div><div class="divider-gem">⬦</div><div class="divider-line"></div></div>
+
+    <div id="countdownArea" class="fade-in delay-2">
+        <p class="falta-label" id="faltaText">Faltam</p>
+        <div class="timer">
+            <div class="time-box"><span class="time-value" id="days">--</span><div class="time-label">Dias</div></div>
+            <div class="time-sep">:</div>
+            <div class="time-box"><span class="time-value" id="hours">--</span><div class="time-label">Horas</div></div>
+            <div class="time-sep">:</div>
+            <div class="time-box"><span class="time-value" id="minutes">--</span><div class="time-label">Min</div></div>
+            <div class="time-sep">:</div>
+            <div class="time-box"><span class="time-value" id="seconds">--</span><div class="time-label">Seg</div></div>
+        </div>
+        <div class="progress-wrap fade-in delay-3" id="progressWrap" style="display:none">
+            <div class="progress-label"><span>INÍCIO</span><span id="progressPct">0%</span><span>FORMATURA</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+        <p class="event-info" id="eventInfo"></p>
+    </div>
+
+    <div id="finishedArea" class="finished fade-in">
+        <div class="finished-icon">🎉⚔️🎖️</div>
+        <h2>Aspirantes 2026!</h2>
+        <p>Parabéns, Dracones Bicentenarii!</p>
+    </div>
+
+    <div class="divider fade-in delay-4"><div class="divider-line"></div><div class="divider-gem">⬦</div><div class="divider-line"></div></div>
+    <p class="motto fade-in delay-4" style="margin-bottom:8px;font-size:.65rem;">Turma Cap PM Almir Souza Santos · CFOA · PMBA</p>
+
+</div>
+
+<button class="btn-float" onclick="openConfig()" title="Configurar data">⚙️</button>
+
+<script>
+    let targetDate = null, startDate = null, interval = null;
+
+    function getUrlTarget() {
+        const p = new URLSearchParams(window.location.search);
+        const t = p.get('t');
+        const d = p.get('d');
+        if (t && !isNaN(t)) return parseInt(t) * 1000;
+        if (d) return new Date(d).getTime();
+        return null;
+    }
+
+    window.onload = function() {
+        const fromUrl = getUrlTarget();
+        if (fromUrl && fromUrl > 0) {
+            targetDate = fromUrl;
+            document.getElementById('urlBadge').classList.add('show');
+            startCountdown();
+            return;
+        }
+        const saved = localStorage.getItem('aspiroTarget');
+        if (saved) {
+            targetDate = new Date(saved).getTime();
+            startDate  = localStorage.getItem('aspiroStart') ? parseInt(localStorage.getItem('aspiroStart')) : null;
+            startCountdown();
+        } else {
+            document.getElementById('eventInfo').innerHTML = 'Toque em <span>⚙️</span> para configurar';
+        }
+    };
+
+    function openConfig() {
+        document.getElementById('linkResult').classList.remove('show');
+        if (targetDate) {
+            const d = new Date(targetDate), z = n => String(n).padStart(2,'0');
+            document.getElementById('targetDate').value =
+                d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'T'+z(d.getHours())+':'+z(d.getMinutes());
+        }
+        document.getElementById('configPanel').classList.add('show');
+    }
+
+    function closeConfig() { document.getElementById('configPanel').classList.remove('show'); }
+
+    function generateLink() {
+        const input = document.getElementById('targetDate').value;
+        if (!input) { showToast('Selecione uma data!'); return; }
+        const t = new Date(input).getTime();
+        if (t <= Date.now()) { showToast('Escolha uma data futura!'); return; }
+
+        targetDate = t;
+        startDate  = Date.now();
+        localStorage.setItem('aspiroTarget', input);
+        localStorage.setItem('aspiroStart', String(startDate));
+
+        const ts   = Math.floor(t / 1000);
+        const base = window.location.origin + window.location.pathname;
+        const link = base + '?t=' + ts;
+
+        document.getElementById('generatedLink').textContent = link;
+        document.getElementById('linkResult').classList.add('show');
+        startCountdown();
+    }
+
+    function copyLink() {
+        const link = document.getElementById('generatedLink').textContent;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(link).then(() => showToast('✅ Link copiado!'));
+        } else {
+            const el = document.createElement('textarea');
+            el.value = link; document.body.appendChild(el); el.select();
+            document.execCommand('copy'); document.body.removeChild(el);
+            showToast('✅ Link copiado!');
+        }
+    }
+
+    function testLink() { window.open(document.getElementById('generatedLink').textContent, '_blank'); }
+
+    function startCountdown() {
+        document.getElementById('countdownArea').style.display = 'block';
+        document.getElementById('finishedArea').classList.remove('show');
+        const target = new Date(targetDate);
+        document.getElementById('eventInfo').innerHTML =
+            '📅 Formatura: <span>' +
+            target.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}) + '</span>';
+        if (startDate) document.getElementById('progressWrap').style.display = 'block';
+        if (interval) clearInterval(interval);
+        updateTimer();
+        interval = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+        const now = Date.now(), diff = targetDate - now;
+        if (diff <= 0) { clearInterval(interval); showFinished(); return; }
+        const d = Math.floor(diff/86400000),
+              h = Math.floor((diff%86400000)/3600000),
+              m = Math.floor((diff%3600000)/60000),
+              s = Math.floor((diff%60000)/1000);
+        setVal('days',d); setVal('hours',h); setVal('minutes',m); setVal('seconds',s,true);
+        document.getElementById('faltaText').textContent =
+            (d===0&&h===0) ? '⚡ Faltam minutos!' : d===0 ? '🔥 Falta menos de 1 dia!' : 'Faltam';
+        if (startDate) {
+            const pct = Math.min(100,Math.max(0,(now-startDate)/(targetDate-startDate)*100));
+            document.getElementById('progressFill').style.width = pct.toFixed(1)+'%';
+            document.getElementById('progressPct').textContent  = pct.toFixed(1)+'%';
+        }
+    }
+
+    function setVal(id, val, anim) {
+        const el = document.getElementById(id), str = String(val).padStart(2,'0');
+        if (el.textContent!==str) {
+            el.textContent = str;
+            if (anim) { el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick'); setTimeout(()=>el.classList.remove('tick'),150); }
+        }
+    }
+
+    function showFinished() {
+        document.getElementById('countdownArea').style.display = 'none';
+        document.getElementById('finishedArea').classList.add('show');
+        launchParticles();
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(()=>t.classList.remove('show'), 2500);
+    }
+
+    function launchParticles() {
+        const wrap = document.getElementById('particles');
+        wrap.classList.add('show'); wrap.innerHTML = '';
+        const colors = ['#d4af37','#f5e080','#8b6f20','#fff8dc','#c0c0c0'];
+        for (let i=0;i<80;i++) {
+            const p = document.createElement('div'); p.className='particle';
+            p.style.left=Math.random()*100+'vw';
+            p.style.background=colors[Math.floor(Math.random()*colors.length)];
+            p.style.width=(3+Math.random()*5)+'px'; p.style.height=(6+Math.random()*10)+'px';
+            p.style.animationDuration=(2+Math.random()*3)+'s';
+            p.style.animationDelay=(Math.random()*2)+'s';
+            wrap.appendChild(p);
+        }
+        setTimeout(()=>{wrap.classList.remove('show');wrap.innerHTML='';},7000);
+    }
+
+    document.getElementById('configPanel').addEventListener('click',function(e){if(e.target===this)closeConfig();});
+</script>
+</body>
+</html>
