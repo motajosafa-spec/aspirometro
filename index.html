@@ -187,7 +187,7 @@ const TARGET = new Date('2026-04-09T17:00:00').getTime();
 const START  = new Date('2025-04-09T08:00:00').getTime();
 
 const ASPIRANTES = [
-  {num:"000", posto:"TEN PM",    nome:"PEDRO SOUZA SILVA FILHO"},
+  {num:"000", posto:"TEN PM AL", nome:"PEDRO SOUZA SILVA FILHO"},
   {num:"149", posto:"ASP PM",    nome:"EDMILSON DA CRUZ OLIVEIRA"},
   {num:"150", posto:"ASP PM",    nome:"NAILSON ARAGAO CRUZ"},
   {num:"152", posto:"ASP PM",    nome:"CLAUDIA FALCAO DE CARVALHO"},
@@ -448,17 +448,25 @@ function updateCarouselInfo() {
 }
 
 function startCarousel() {
-    const track  = document.getElementById('carouselTrack');
-    const totalW = ASPIRANTES.length * CARD_W;
+    const track    = document.getElementById('carouselTrack');
+    const viewport = track.parentElement;
+    const totalW   = ASPIRANTES.length * CARD_W;
+
+    // Foto 000 é o índice 0 do segundo bloco (triplicado).
+    // Posicionamos o carrossel de forma que ela fique no centro da viewport.
+    // O segundo bloco começa em: ASPIRANTES.length * CARD_W
+    // Para centralizar o índice 0: pos = bloco2_start - (viewport/2 - CARD_W/2)
+    carouselPos = ASPIRANTES.length * CARD_W - (viewport.clientWidth / 2 - CARD_W / 2);
+    if (carouselPos < 0) carouselPos = 0;
+
     function step(ts) {
         if (!lastCarTime) lastCarTime = ts;
         const delta = ts - lastCarTime; lastCarTime = ts;
         carouselPos += SPEED_C * delta / 1000;
-        if (carouselPos >= totalW) carouselPos -= totalW;
+        if (carouselPos >= totalW * 2) carouselPos -= totalW;
         track.style.transform = 'translateX(-' + carouselPos + 'px)';
-        const viewport = track.parentElement;
-        const centerX  = carouselPos + viewport.clientWidth / 2;
-        const idx      = Math.floor(centerX / CARD_W) % ASPIRANTES.length;
+        const centerX = carouselPos + viewport.clientWidth / 2;
+        const idx     = Math.floor(centerX / CARD_W) % ASPIRANTES.length;
         if (idx !== carouselIndex) { carouselIndex = idx; updateCarouselInfo(); }
         carouselAnim = requestAnimationFrame(step);
     }
