@@ -187,7 +187,7 @@ const TARGET = new Date('2026-04-09T17:00:00').getTime();
 const START  = new Date('2025-04-09T08:00:00').getTime();
 
 const ASPIRANTES = [
-  {num:"000", posto:"TEN PM",    nome:"PEDRO SOUZA SILVA FILHO"},
+  {num:"000", posto:"TEN PM AL", nome:"PEDRO SOUZA SILVA FILHO"},
   {num:"149", posto:"ASP PM",    nome:"EDMILSON DA CRUZ OLIVEIRA"},
   {num:"150", posto:"ASP PM",    nome:"NAILSON ARAGAO CRUZ"},
   {num:"152", posto:"ASP PM",    nome:"CLAUDIA FALCAO DE CARVALHO"},
@@ -399,7 +399,8 @@ let carouselAnim  = null;
 let carouselPos   = 0;
 let lastCarTime   = null;
 const CARD_W      = 104;
-const SPEED_C     = 40;
+const SPEED_BASE  = 40;   // velocidade normal px/s
+let carouselSpeed = SPEED_BASE;  // velocidade atual (pode ser negativa = esquerda)
 
 (function initCarousel() {
     const track = document.getElementById('carouselTrack');
@@ -452,27 +453,88 @@ function startCarousel() {
     const viewport = track.parentElement;
     const totalW   = ASPIRANTES.length * CARD_W;
 
-    // Foto 000 é o índice 0 do segundo bloco (triplicado).
-    // Posicionamos o carrossel de forma que ela fique no centro da viewport.
-    // O segundo bloco começa em: ASPIRANTES.length * CARD_W
-    // Para centralizar o índice 0: pos = bloco2_start - (viewport/2 - CARD_W/2)
+    // Posição inicial: foto 000 centralizada
     carouselPos = ASPIRANTES.length * CARD_W - (viewport.clientWidth / 2 - CARD_W / 2);
     if (carouselPos < 0) carouselPos = 0;
 
+    // ── Loop de animação ──
     function step(ts) {
         if (!lastCarTime) lastCarTime = ts;
         const delta = ts - lastCarTime; lastCarTime = ts;
-        carouselPos += SPEED_C * delta / 1000;
+
+        // Retorna suavemente à velocidade base se não estiver sendo arrastado
+        if (!isDragging) {
+            const diff = SPEED_BASE - carouselSpeed;
+            carouselSpeed += diff * Math.min(delta / 400, 1); // suaviza em ~400ms
+        }
+
+        carouselPos += carouselSpeed * delta / 1000;
+
+        // Loop infinito nos dois sentidos
         if (carouselPos >= totalW * 2) carouselPos -= totalW;
+        if (carouselPos < 0)           carouselPos += totalW;
+
         track.style.transform = 'translateX(-' + carouselPos + 'px)';
+
         const centerX = carouselPos + viewport.clientWidth / 2;
-        const idx     = Math.floor(centerX / CARD_W) % ASPIRANTES.length;
+        const idx     = Math.abs(Math.floor(centerX / CARD_W)) % ASPIRANTES.length;
         if (idx !== carouselIndex) { carouselIndex = idx; updateCarouselInfo(); }
+
         carouselAnim = requestAnimationFrame(step);
     }
-    track.parentElement.addEventListener('pointerdown', () => { cancelAnimationFrame(carouselAnim); lastCarTime = null; });
-    track.parentElement.addEventListener('pointerup',    () => { carouselAnim = requestAnimationFrame(step); });
-    track.parentElement.addEventListener('pointerleave', () => { if (!carouselAnim) carouselAnim = requestAnimationFrame(step); });
+
+    // ── Swipe / Drag ──
+    let isDragging  = false;
+    let dragStartX  = 0;
+    let dragLastX   = 0;
+    let dragLastT   = 0;
+    let dragVel     = 0; // velocidade instantânea do dedo em px/s
+
+    function onDown(e) {
+        isDragging = true;
+        dragStartX = dragLastX = e.touches ? e.touches[0].clientX : e.clientX;
+        dragLastT  = performance.now();
+        dragVel    = 0;
+        lastCarTime = null;
+    }
+
+    function onMove(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x   = e.touches ? e.touches[0].clientX : e.clientX;
+        const now  = performance.now();
+        const dt   = now - dragLastT;
+        const dx   = dragLastX - x; // positivo = mover para esquerda (avançar)
+
+        dragVel    = dt > 0 ? (dx / dt) * 1000 : dragVel; // px/s
+        carouselPos += dx;
+        if (carouselPos >= totalW * 2) carouselPos -= totalW;
+        if (carouselPos < 0)           carouselPos += totalW;
+
+        track.style.transform = 'translateX(-' + carouselPos + 'px)';
+        dragLastX = x;
+        dragLastT = now;
+    }
+
+    function onUp() {
+        if (!isDragging) return;
+        isDragging = false;
+        // Lança o carrossel na velocidade do dedo (limitada a ±600px/s)
+        carouselSpeed = Math.max(-600, Math.min(600, dragVel));
+        lastCarTime   = null;
+    }
+
+    // Touch
+    viewport.addEventListener('touchstart',  onDown, { passive: true });
+    viewport.addEventListener('touchmove',   onMove, { passive: false });
+    viewport.addEventListener('touchend',    onUp);
+    viewport.addEventListener('touchcancel', onUp);
+
+    // Mouse (desktop)
+    viewport.addEventListener('mousedown',   onDown);
+    window.addEventListener('mousemove',    onMove);
+    window.addEventListener('mouseup',      onUp);
+
     carouselAnim = requestAnimationFrame(step);
 }
 
