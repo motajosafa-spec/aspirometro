@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aspirômetro 2026 – CFOA/PMBA</title>
+    <meta property="og:title" content="⚔️ Aspirômetro 2026 – CFOA/PMBA">
+    <meta property="og:description" content="Dracones Bicentenarii · Turma Cap PM Almir Souza Santos">
+    <meta property="og:type" content="website">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <script>
+        firebase.initializeApp({
+            databaseURL: "https://aspirometro-default-rtdb.firebaseio.com"
+        });
+        const db = firebase.database();
+    </script>
+    <style>
+        :root{--gold:#d4af37;--gold-light:#f5e080;--gold-dim:#8b6f20;--gold-glow:rgba(212,175,55,.35);--text-muted:#6a5f3a;}
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{min-height:100vh;background:#060608;font-family:'Cinzel',serif;color:var(--gold);display:flex;flex-direction:column;align-items:center;overflow-x:hidden;position:relative;}
+        body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(100,70,10,.22) 0%,transparent 70%),radial-gradient(ellipse 60% 40% at 50% 100%,rgba(80,10,10,.18) 0%,transparent 60%),repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(212,175,55,.02) 2px,rgba(212,175,55,.02) 4px);pointer-events:none;z-index:0;}
+        body::after{content:'';position:fixed;inset:0;background:linear-gradient(90deg,rgba(212,175,55,.12) 0px,transparent 6px),linear-gradient(270deg,rgba(212,175,55,.12) 0px,transparent 6px),linear-gradient(180deg,rgba(212,175,55,.18) 0px,transparent 40px),linear-gradient(0deg,rgba(212,175,55,.18) 0px,transparent 40px);pointer-events:none;z-index:0;}
+        .wrapper{position:relative;z-index:1;width:100%;max-width:480px;padding:0 18px 40px;display:flex;flex-direction:column;align-items:center;}
+        .top-border{width:100%;height:4px;background:linear-gradient(90deg,transparent,var(--gold-dim),var(--gold),var(--gold-light),var(--gold),var(--gold-dim),transparent);}
+        .header{text-align:center;padding:28px 10px 10px;}
+        .header-sup{font-size:.62rem;letter-spacing:5px;color:var(--gold-dim);text-transform:uppercase;margin-bottom:8px;}
+        .header h1{font-family:'Cinzel Decorative',serif;font-size:2rem;font-weight:700;color:var(--gold-light);text-shadow:0 0 18px rgba(212,175,55,.7),0 2px 6px rgba(0,0,0,.8);letter-spacing:2px;line-height:1.1;}
+        .header-sub{font-family:'IM Fell English',serif;font-style:italic;font-size:.85rem;color:var(--gold-dim);margin-top:6px;}
+        .crest-wrap{margin:14px 0 6px;}
+        .crest-svg{width:90px;height:90px;filter:drop-shadow(0 0 14px rgba(212,175,55,.55));animation:crest-pulse 3.5s ease-in-out infinite;}
+        @keyframes crest-pulse{0%,100%{filter:drop-shadow(0 0 12px rgba(212,175,55,.45))}50%{filter:drop-shadow(0 0 24px rgba(212,175,55,.85))}}
+        .divider{width:100%;display:flex;align-items:center;gap:10px;margin:8px 0;}
+        .divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),var(--gold),var(--gold-dim),transparent);}
+        .divider-gem{color:var(--gold);font-size:.85rem;}
+        .turma-tag{font-size:.6rem;letter-spacing:4px;text-transform:uppercase;color:var(--text-muted);text-align:center;margin-bottom:4px;}
+        .motto{font-family:'IM Fell English',serif;font-style:italic;font-size:.72rem;color:var(--text-muted);text-align:center;letter-spacing:1px;}
+
+        /* ── Slots de destaque ao lado do escudo ── */
+        .crest-row{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;margin:14px 0 6px;}
+        .spotlight-slot{
+            width:76px;height:76px;border-radius:50%;
+            border:2px dashed var(--gold-dim);
+            background:rgba(212,175,55,.05);
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            position:relative;transition:border-color .3s,box-shadow .3s;
+            cursor:pointer;flex-shrink:0;
+        }
+        .spotlight-slot.drag-over{border-color:var(--gold-light);box-shadow:0 0 18px rgba(212,175,55,.6);border-style:solid;transform:scale(1.08);}
+        .spotlight-slot.filled{border-style:solid;border-color:var(--gold);}
+        .spotlight-slot .slot-hint{font-size:.42rem;letter-spacing:1px;color:var(--text-muted);text-align:center;padding:4px;line-height:1.4;}
+        .spotlight-slot img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:none;}
+        .spotlight-slot.filled img{display:block;}
+        .spotlight-slot.filled .slot-hint{display:none;}
+        .slot-label{font-size:.42rem;letter-spacing:1px;color:var(--gold-dim);text-align:center;margin-top:4px;max-width:76px;line-height:1.3;min-height:16px;}
+        .slot-clear{
+            position:absolute;top:-4px;right:-4px;
+            width:18px;height:18px;border-radius:50%;
+            background:rgba(180,30,30,.9);border:1px solid #d4af37;
+            color:#fff;font-size:.65rem;display:none;
+            align-items:center;justify-content:center;cursor:pointer;
+            z-index:10;
+        }
+        .spotlight-slot.filled .slot-clear{display:flex;}
+
+        /* Elemento fantasma que segue o dedo */
+        #dragGhost{
+            position:fixed;width:60px;height:60px;border-radius:50%;
+            border:2px solid var(--gold-light);
+            box-shadow:0 0 16px rgba(212,175,55,.8);
+            pointer-events:none;z-index:999;
+            transform:translate(-50%,-50%);
+            display:none;overflow:hidden;background:#000;
+        }
+        #dragGhost img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+        .carousel-card.dragging{opacity:0.4;}
+
+        /* Popup menu para mobile */
+        #slotMenu{
+            position:fixed;inset:0;z-index:500;
+            display:none;align-items:flex-end;justify-content:center;
+            background:rgba(0,0,0,.6);
+        }
+        #slotMenu.show{display:flex;}
+        .slot-menu-box{
+            background:#0e0c08;
+            border:1px solid var(--gold-dim);
+            border-radius:16px 16px 0 0;
+            padding:20px 24px 32px;
+            width:100%;max-width:480px;
+            text-align:center;
+        }
+        .slot-menu-title{
+            font-family:'Cinzel Decorative',serif;
+            font-size:.8rem;letter-spacing:3px;color:var(--gold);
+            margin-bottom:6px;
+        }
+        .slot-menu-name{
+            font-size:.65rem;color:var(--text-muted);
+            letter-spacing:1px;margin-bottom:18px;
+        }
+        .slot-menu-btns{display:flex;gap:12px;justify-content:center;}
+        .slot-menu-btn{
+            flex:1;padding:12px 6px;border:none;border-radius:8px;
+            font-family:'Cinzel',serif;font-weight:700;font-size:.72rem;
+            letter-spacing:1.5px;cursor:pointer;
+            background:linear-gradient(135deg,var(--gold-dim),var(--gold),var(--gold-light));
+            color:#0a0808;
+        }
+        .slot-menu-btn.cancel{
+            background:transparent;border:1px solid var(--gold-dim);
+            color:var(--text-muted);flex:0 0 auto;padding:12px 18px;
+        }
+
+        /* ── Carrossel de fotos ── */
+        .carousel-wrap{width:100%;margin:10px 0 6px;position:relative;}
+        .carousel-label{font-family:'Cinzel Decorative',serif;font-size:.72rem;letter-spacing:3px;color:var(--gold-dim);text-align:center;margin-bottom:8px;text-transform:uppercase;}
+        .carousel-viewport{width:100%;overflow:hidden;position:relative;padding:10px 0;}
+        .carousel-track{display:flex;gap:14px;align-items:center;will-change:transform;}
+        .carousel-card{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:transform .3s;}
+        .carousel-card.active{transform:scale(1.12);}
+        .photo-ring{width:80px;height:80px;border-radius:50%;border:2px solid var(--gold-dim);padding:3px;background:rgba(0,0,0,.5);position:relative;transition:border-color .3s,box-shadow .3s;}
+        .carousel-card.active .photo-ring{border-color:var(--gold-light);box-shadow:0 0 16px rgba(212,175,55,.7);}
+        .photo-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;}
+        .photo-ring .no-photo{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,#0d1b3e,#7b1a1a);display:flex;align-items:center;justify-content:center;font-size:1.6rem;}
+        .card-posto{font-size:.45rem;letter-spacing:2px;color:var(--gold-dim);text-transform:uppercase;text-align:center;max-width:90px;}
+        .card-name{font-size:.5rem;letter-spacing:1px;color:var(--gold);text-align:center;max-width:90px;line-height:1.3;white-space:normal;}
+        .carousel-card.active .card-name{color:var(--gold-light);}
+        .carousel-info{text-align:center;margin:6px 0 4px;min-height:32px;}
+        .carousel-info .ci-posto{font-size:.6rem;letter-spacing:3px;color:var(--gold-dim);text-transform:uppercase;}
+        .carousel-info .ci-name{font-family:'Cinzel',serif;font-size:.8rem;color:var(--gold-light);letter-spacing:1px;margin-top:2px;}
+
+        /* Countdown */
+        .falta-label{font-family:'Cinzel Decorative',serif;font-size:1.1rem;color:var(--gold);text-align:center;margin:10px 0 4px;letter-spacing:2px;text-shadow:0 0 10px rgba(212,175,55,.5);min-height:1.6rem;}
+        .timer{display:flex;justify-content:center;gap:10px;margin:6px 0 8px;width:100%;}
+        .time-box{flex:1;background:linear-gradient(160deg,rgba(212,175,55,.08) 0%,rgba(0,0,0,.5) 100%);border:1px solid var(--gold-dim);border-radius:6px;padding:12px 6px 8px;text-align:center;position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(212,175,55,.25),0 4px 16px rgba(0,0,0,.6);}
+        .time-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold-light),transparent);}
+        .time-value{display:block;font-family:'Cinzel',serif;font-size:2.2rem;font-weight:900;color:var(--gold-light);line-height:1;text-shadow:0 0 20px rgba(212,175,55,.8),0 2px 4px rgba(0,0,0,.9);transition:transform .15s ease,color .15s ease;}
+        .time-value.tick{transform:scale(1.06);color:#fff8dc;}
+        .time-label{font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:3px;margin-top:5px;}
+        .time-sep{display:flex;align-items:center;color:var(--gold-dim);font-size:1.6rem;font-weight:900;padding-bottom:14px;}
+        .event-info{font-family:'IM Fell English',serif;font-style:italic;font-size:.82rem;color:var(--text-muted);text-align:center;margin:4px 0 8px;}
+        .event-info span{color:var(--gold);font-style:normal;}
+        .progress-wrap{width:100%;margin:4px 0 12px;}
+        .progress-label{display:flex;justify-content:space-between;font-size:.58rem;letter-spacing:2px;color:var(--text-muted);margin-bottom:4px;}
+        .progress-bar-bg{width:100%;height:6px;background:rgba(255,255,255,.06);border-radius:3px;border:1px solid rgba(212,175,55,.15);overflow:hidden;}
+        .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold),var(--gold-light));border-radius:3px;transition:width 1s linear;box-shadow:0 0 8px rgba(212,175,55,.5);}
+
+        /* Lista rolante */
+        .roster-wrap{width:100%;margin:6px 0 10px;position:relative;}
+        .roster-title{font-family:'Cinzel Decorative',serif;font-size:.72rem;letter-spacing:3px;color:var(--gold-dim);text-align:center;margin-bottom:6px;text-transform:uppercase;}
+        .roster-viewport{width:100%;height:170px;overflow:hidden;position:relative;border:1px solid var(--gold-dim);border-radius:8px;background:rgba(0,0,0,.5);}
+        .roster-viewport::before,.roster-viewport::after{content:'';position:absolute;left:0;right:0;height:45px;z-index:2;pointer-events:none;}
+        .roster-viewport::before{top:0;background:linear-gradient(to bottom,rgba(6,6,8,1) 0%,transparent 100%);}
+        .roster-viewport::after{bottom:0;background:linear-gradient(to top,rgba(6,6,8,1) 0%,transparent 100%);}
+        .roster-track{display:flex;flex-direction:column;}
+        .roster-item{padding:8px 16px;font-size:.68rem;letter-spacing:1.5px;color:var(--gold);text-align:center;border-bottom:1px solid rgba(212,175,55,.08);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .roster-item.highlight{color:var(--gold-light);text-shadow:0 0 8px rgba(212,175,55,.6);}
+
+        .finished{display:none;text-align:center;padding:20px 10px;}
+        .finished.show{display:block;}
+        .finished-icon{font-size:3.5rem;margin-bottom:14px;animation:bounce 1s ease infinite alternate;}
+        @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+        .finished h2{font-family:'Cinzel Decorative',serif;font-size:1.5rem;color:var(--gold-light);text-shadow:0 0 20px rgba(212,175,55,.8);margin-bottom:8px;}
+        .finished p{font-family:'IM Fell English',serif;font-style:italic;color:var(--text-muted);font-size:.95rem;}
+        .particles{position:fixed;inset:0;pointer-events:none;z-index:200;display:none;}
+        .particles.show{display:block;}
+        .particle{position:absolute;width:5px;height:10px;background:var(--gold);border-radius:2px;animation:fall linear forwards;}
+        @keyframes fall{from{transform:translateY(-20px) rotate(0deg);opacity:1}to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+        .fade-in{animation:fadeIn .8s ease forwards;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+        .delay-1{animation-delay:.15s;opacity:0}.delay-2{animation-delay:.3s;opacity:0}.delay-3{animation-delay:.45s;opacity:0}.delay-4{animation-delay:.6s;opacity:0}
+    </style>
+</head>
+<body>
+
+<div id="dragGhost"><img id="dragGhostImg" src="" alt=""></div>
+
+<!-- Popup mobile para escolher slot -->
+<div id="slotMenu">
+    <div class="slot-menu-box">
+        <div class="slot-menu-title">📌 Fixar em Destaque</div>
+        <div class="slot-menu-name" id="slotMenuName"></div>
+        <div class="slot-menu-btns">
+            <button class="slot-menu-btn" onclick="slotMenuChoose('left')">⬅ Slot Esquerdo</button>
+            <button class="slot-menu-btn" onclick="slotMenuChoose('right')">Slot Direito ➡</button>
+            <button class="slot-menu-btn cancel" onclick="closeSlotMenu()">✕</button>
+        </div>
+    </div>
+</div>
+
+<div class="particles" id="particles"></div>
+<div class="top-border"></div>
+
+<div class="wrapper">
+
+    <div class="header fade-in">
+        <p class="header-sup">Dracones Bicentenarii</p>
+        <h1>⚔️ Aspirômetro</h1>
+        <p class="header-sub">Turma Cap PM Almir Souza Santos</p>
+    </div>
+
+    <div class="crest-row fade-in delay-1">
+
+        <!-- Slot esquerdo -->
+        <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="spotlight-slot" id="slotLeft" ondragover="onSlotDragOver(event)" ondrop="onSlotDrop(event,'left')" ondragleave="onSlotDragLeave(event)">
+                <span class="slot-clear" onclick="clearSlot('left')">✕</span>
+                <img id="slotLeftImg" src="" alt="">
+                <span class="slot-hint">⬇ Arraste<br>uma foto</span>
+            </div>
+            <div class="slot-label" id="slotLeftLabel"></div>
+        </div>
+
+        <!-- Escudo central -->
+        <div class="crest-wrap" style="margin:0;">
+            <svg class="crest-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <g opacity=".75">
+                    <line x1="20" y1="20" x2="100" y2="100" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="100" y1="20" x2="20" y2="100" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/>
+                    <rect x="56" y="14" width="8" height="3" rx="1" fill="#d4af37"/>
+                    <rect x="56" y="103" width="8" height="3" rx="1" fill="#d4af37"/>
+                    <rect x="14" y="56" width="3" height="8" rx="1" fill="#d4af37"/>
+                    <rect x="103" y="56" width="3" height="8" rx="1" fill="#d4af37"/>
+                </g>
+                <path d="M35 32 L85 32 L85 72 Q85 90 60 100 Q35 90 35 72 Z" fill="#0d1b3e" stroke="#d4af37" stroke-width="2.5"/>
+                <path d="M60 32 L85 32 L85 72 Q85 90 60 100 Z" fill="#7b1a1a"/>
+                <line x1="60" y1="32" x2="60" y2="100" stroke="#d4af37" stroke-width="1.5" opacity=".8"/>
+                <text x="47" y="70" text-anchor="middle" font-size="20" fill="#d4af37" opacity=".9">🐉</text>
+                <text x="73" y="70" text-anchor="middle" font-size="14" fill="#d4af37" opacity=".9">⚔️</text>
+                <text x="42" y="82" text-anchor="middle" font-family="serif" font-size="6" fill="#d4af37" font-weight="bold">CFOA</text>
+                <text x="76" y="82" text-anchor="middle" font-family="serif" font-size="6" fill="#d4af37" font-weight="bold">PMBA</text>
+                <text x="60" y="26" text-anchor="middle" font-size="10" fill="#f5e080">★</text>
+            </svg>
+        </div>
+
+        <!-- Slot direito -->
+        <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="spotlight-slot" id="slotRight" ondragover="onSlotDragOver(event)" ondrop="onSlotDrop(event,'right')" ondragleave="onSlotDragLeave(event)">
+                <span class="slot-clear" onclick="clearSlot('right')">✕</span>
+                <img id="slotRightImg" src="" alt="">
+                <span class="slot-hint">⬇ Arraste<br>uma foto</span>
+            </div>
+            <div class="slot-label" id="slotRightLabel"></div>
+        </div>
+
+    </div>
+
+    <div class="turma-tag fade-in delay-1">Aspirantes 2026 · CFOA/PMBA</div>
+    <p class="motto fade-in delay-1">Honor · Disciplina · Coragem</p>
+
+    <div class="divider fade-in delay-1"><div class="divider-line"></div><div class="divider-gem">⬦</div><div class="divider-line"></div></div>
+
+    <!-- Carrossel de fotos -->
+    <div class="carousel-wrap fade-in delay-2">
+        <div class="carousel-label">⚔ Aspirantes 2026</div>
+        <div class="carousel-viewport">
+            <div class="carousel-track" id="carouselTrack"></div>
+        </div>
+        <div class="carousel-info">
+            <div class="ci-posto" id="ciPosto"></div>
+            <div class="ci-name" id="ciName"></div>
+        </div>
+    </div>
+
+    <div class="divider fade-in delay-2"><div class="divider-line"></div><div class="divider-gem">⬦</div><div class="divider-line"></div></div>
+
+    <!-- Countdown -->
+    <div id="countdownArea" class="fade-in delay-2">
+        <p class="falta-label" id="faltaText">Faltam</p>
+        <div class="timer">
+            <div class="time-box"><span class="time-value" id="days">--</span><div class="time-label">Dias</div></div>
+            <div class="time-sep">:</div>
+            <div class="time-box"><span class="time-value" id="hours">--</span><div class="time-label">Horas</div></div>
+            <div class="time-sep">:</div>
+            <div class="time-box"><span class="time-value" id="minutes">--</span><div class="time-label">Min</div></div>
+            <div class="time-sep">:</div>
+            <div class="time-box"><span class="time-value" id="seconds">--</span><div class="time-label">Seg</div></div>
+        </div>
+        <div class="progress-wrap">
+            <div class="progress-label"><span>INÍCIO</span><span id="progressPct">0%</span><span>FORMATURA</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+        </div>
+        <p class="event-info">📅 Formatura: <span>09 de abril de 2026 · 17h00</span></p>
+    </div>
+
+    <div id="finishedArea" class="finished fade-in">
+        <div class="finished-icon">🎉⚔️🎖️</div>
+        <h2>Aspirantes 2026!</h2>
+        <p>Parabéns, Dracones Bicentenarii!</p>
+    </div>
+
+    <div class="divider fade-in delay-3"><div class="divider-line"></div><div class="divider-gem">⬦</div><div class="divider-line"></div></div>
+
+    <!-- Lista rolante -->
+    <div class="roster-wrap fade-in delay-3">
+        <div class="roster-title">📋 Relação de Aspirantes</div>
+        <div class="roster-viewport">
+            <div class="roster-track" id="rosterTrack"></div>
+        </div>
+    </div>
+
+    <div class="divider fade-in delay-4"><div class="divider-line"></div><div class="divider-gem">⬦</div><div class="divider-line"></div></div>
+    <p class="motto fade-in delay-4" style="margin-bottom:8px;font-size:.65rem;">Turma Cap PM Almir Souza Santos · CFOA · PMBA</p>
+</div>
+
+<script>
+// ── Data fixa: 09/04/2026 às 17:00 ────────────────────────────────────────
+const TARGET = new Date('2026-04-09T17:00:00').getTime();
+const START  = new Date('2025-04-09T08:00:00').getTime();
+
+const ASPIRANTES = [
+  {num:"000", posto:"TEN PM AL", nome:"PEDRO SOUZA SILVA FILHO"},
+  {num:"149", posto:"ASP PM",    nome:"EDMILSON DA CRUZ OLIVEIRA"},
+  {num:"150", posto:"ASP PM",    nome:"NAILSON ARAGAO CRUZ"},
+  {num:"152", posto:"ASP PM",    nome:"CLAUDIA FALCAO DE CARVALHO"},
+  {num:"153", posto:"ASP PM",    nome:"NANCI RITA DO COUTO SOUZA"},
+  {num:"154", posto:"ASP PM",    nome:"CHRIS AMON MORAES PINHEIRO SANTOS"},
+  {num:"155", posto:"ASP PM",    nome:"ROBERTO CRUZ ALEXANDRINO"},
+  {num:"156", posto:"ASP PM",    nome:"ALICE AMADO DE JESUS CAETANO"},
+  {num:"157", posto:"ASP PM",    nome:"EMIDIO NASCIMENTO LESSA"},
+  {num:"158", posto:"ASP PM",    nome:"ADRIANA DA SILVA"},
+  {num:"159", posto:"ASP PM",    nome:"MARCUS ALEXANDRO PEREIRA BAHIA"},
+  {num:"160", posto:"ASP PM",    nome:"MARIVALDO PINHEIRO ANDRADE"},
+  {num:"161", posto:"ASP PM",    nome:"DANIELA SAO PEDRO SANTANA DE OLIVEIRA SOUZA"},
+  {num:"162", posto:"ASP PM",    nome:"SANDRA DA SILVA CERQUEIRA"},
+  {num:"163", posto:"ASP PM",    nome:"LUCIANA MARIA GOMES DA SILVA"},
+  {num:"164", posto:"ASP PM",    nome:"ROBERTA VANIA DOS SANTOS"},
+  {num:"165", posto:"ASP PM",    nome:"CARINE DOS REIS SOUZA"},
+  {num:"166", posto:"ASP PM",    nome:"SAMYLI DOS SANTOS PEIXOTO"},
+  {num:"167", posto:"ASP PM",    nome:"FERNANDA NASCIMENTO DE SOUZA"},
+  {num:"168", posto:"ASP PM",    nome:"CID CORREIA SANTOS"},
+  {num:"169", posto:"ASP PM",    nome:"DANIELA LIMA DE SOUZA"},
+  {num:"170", posto:"ASP PM",    nome:"ROSINEIDE BITENCOURT BORGES"},
+  {num:"171", posto:"ASP PM",    nome:"ELIETE SANTOS SOUZA"},
+  {num:"172", posto:"ASP PM",    nome:"PAULO HENRIQUE DOS SANTOS"},
+  {num:"173", posto:"ASP PM",    nome:"EDIRANE MASCARENHAS ROCHA"},
+  {num:"174", posto:"ASP PM",    nome:"LUCELIA PETERSEN DELGADO"},
+  {num:"175", posto:"ASP PM",    nome:"ARILMA FARIAS DE SOUZA CARRERA"},
+  {num:"176", posto:"ASP PM",    nome:"CIDMILTON DA PAIXAO SIMPLICIO"},
+  {num:"177", posto:"ASP PM",    nome:"NATONIEL FERREIRA DA CUNHA"},
+  {num:"178", posto:"ASP PM",    nome:"USTENE MARIA FONSECA SEIXAS"},
+  {num:"179", posto:"ASP PM",    nome:"WAGNER PESSOA KLINGER"},
+  {num:"180", posto:"ASP PM",    nome:"CARLA SIMONE DA SILVA SOUZA"},
+  {num:"181", posto:"ASP PM",    nome:"CHARLES RODRIGUES OLIVEIRA"},
+  {num:"182", posto:"ASP PM",    nome:"CLAUDIO SOUSA SILVA"},
+  {num:"183", posto:"ASP PM",    nome:"MARCIA GUIMARAES LOPES"},
+  {num:"184", posto:"ASP PM",    nome:"MARCOS BATISTA DA NATIVIDADE"},
+  {num:"185", posto:"ASP PM",    nome:"PEDRO SALES SOBRAL FILHO"},
+  {num:"186", posto:"ASP PM",    nome:"ROSANGELA TORRES CHAVES"},
+  {num:"187", posto:"ASP PM",    nome:"JOSE NILTON DA CONCEICAO MATOS"},
+  {num:"188", posto:"ASP PM",    nome:"ROSEMBERG PEREIRA RIBEIRO"},
+  {num:"189", posto:"ASP PM",    nome:"MABEL SOUZA SANTOS"},
+  {num:"190", posto:"ASP PM",    nome:"SHEILA AMARANTE DE MATOS"},
+  {num:"191", posto:"ASP PM",    nome:"CLEIDINEIA RAMOS DE SOUZA"},
+  {num:"192", posto:"ASP PM",    nome:"LUCIMARE FERREIRA DIAS"},
+  {num:"193", posto:"ASP PM",    nome:"ELIOMAR MARTINS DA SILVA"},
+  {num:"194", posto:"ASP PM",    nome:"JULIANA OLIVEIRA BOTELHO"},
+  {num:"195", posto:"ASP PM",    nome:"JONAS DE SOUSA AZEVEDO"},
+  {num:"196", posto:"ASP PM",    nome:"JACIANE MARIA DA S. SANTOS JESUS"},
+  {num:"197", posto:"ASP PM",    nome:"MARLEIDE SILVA DA CRUZ SALES"},
+  {num:"198", posto:"ASP PM",    nome:"DANIELA DE MELLO TEIXEIRA DE FREITAS"},
+  {num:"199", posto:"ASP PM",    nome:"MARCIO FRANKLIN SANTOS ANDRADE"},
+  {num:"200", posto:"ASP PM",    nome:"EMERSON SILVA DE CARVALHO"},
+  {num:"201", posto:"ASP PM",    nome:"ANDREA CELESTINO DE FREITAS NASCIMENTO"},
+  {num:"202", posto:"ASP PM",    nome:"CLAUDIA DA CRUZ ROCHA COSTA"},
+  {num:"203", posto:"ASP PM",    nome:"LUCIANO SANTOS FERREIRA"},
+  {num:"204", posto:"ASP PM",    nome:"ALA SANTOS ROCHA"},
+  {num:"205", posto:"ASP PM",    nome:"ALAN ROBSON DE JESUS SANTOS"},
+  {num:"206", posto:"ASP PM",    nome:"ANA PAULA GIL DE BRITO SANTIAGO PESQUEIRA"},
+  {num:"207", posto:"ASP PM",    nome:"DEBORA ASSIZ VILA VERDE ALVES"},
+  {num:"208", posto:"ASP PM",    nome:"CRISTIANA DOS SANTOS OLIVEIRA"},
+  {num:"209", posto:"ASP PM",    nome:"FERNANDO PEDRO SALLES SILVA JUNIOR"},
+  {num:"210", posto:"ASP PM",    nome:"EDMACIO DIAMANTINO RIBEIRO"},
+  {num:"211", posto:"ASP PM",    nome:"GIVALDO SOUZA PEREIRA"},
+  {num:"212", posto:"ASP PM",    nome:"LUCIENE DA CRUZ MURICY"},
+  {num:"213", posto:"ASP PM",    nome:"JEAN CARLOS MOSQUERA DE ANDRADE"},
+  {num:"214", posto:"ASP PM",    nome:"ADELOILDES CRISTINA SANTOS BRASIL"},
+  {num:"215", posto:"ASP PM",    nome:"CELSO DA SILVA BORBA"},
+  {num:"216", posto:"ASP PM",    nome:"ELIS REGINA CONCEICAO DAMASCENO"},
+  {num:"217", posto:"ASP PM",    nome:"CRISTIANO FERREIRA BITTENCOURT"},
+  {num:"218", posto:"ASP PM",    nome:"JOBEL FELIX SOARES"},
+  {num:"219", posto:"ASP PM",    nome:"NILDA SANTOS PEREIRA"},
+  {num:"220", posto:"ASP PM",    nome:"WALDEMAR ALVES COELHO JUNIOR"},
+  {num:"221", posto:"ASP PM",    nome:"DERMEVAL DE CARVALHO VIGAS FILHO"},
+  {num:"222", posto:"ASP PM",    nome:"ALINE CRISTINA DE CASTRO LOPES"},
+  {num:"223", posto:"ASP PM",    nome:"NELMA CRISTINA PEREIRA DE MIRANDA"},
+  {num:"224", posto:"ASP PM",    nome:"SILVANA MAGNA SENA MOREIRA"},
+  {num:"225", posto:"ASP PM",    nome:"JOSE RAIMUNDO DOS SANTOS"},
+  {num:"226", posto:"ASP PM",    nome:"ELIANA SIMOES FONTES"},
+  {num:"227", posto:"ASP PM",    nome:"VALDEMAR LEANDRO CAVALCANTE DE A. SANTOS"},
+  {num:"228", posto:"ASP PM",    nome:"BENICIO SILVA CEZAR FILHO"},
+  {num:"229", posto:"ASP PM",    nome:"REGIVALDO GUTHIERRY MARTINS"},
+  {num:"230", posto:"ASP PM",    nome:"FIRMINO FERNANDES MIRANDA NETO"},
+  {num:"231", posto:"ASP PM",    nome:"PAULO CESAR SENA DOS SANTOS"},
+  {num:"232", posto:"ASP PM",    nome:"ELISANGELA DE LIMA SOUZA"},
+  {num:"233", posto:"ASP PM",    nome:"RONALDO ARAUJO DOS SANTOS"},
+  {num:"234", posto:"ASP PM",    nome:"MARCIA SILVA DA CUNHA"},
+  {num:"235", posto:"ASP PM",    nome:"JEAN SIMOES CEDRAZ"},
+  {num:"236", posto:"ASP PM",    nome:"DIVANILSON DA SILVA GUEDES"},
+  {num:"237", posto:"ASP PM",    nome:"GUSTAVO DE FREITAS CRUZ"},
+  {num:"238", posto:"ASP PM",    nome:"RENE NASCIMENTO ROCHA"},
+  {num:"239", posto:"ASP PM",    nome:"JACKSON MUNIZ DE ANDRADE"},
+  {num:"240", posto:"ASP PM",    nome:"CRISTIAN ARAUJO DA SILVA PIRES MIRANDA"},
+  {num:"241", posto:"ASP PM",    nome:"PEDRO ROMUALDO DE SOUSA"},
+  {num:"242", posto:"ASP PM",    nome:"STONE RANGEL DOS SANTOS PINTO"},
+  {num:"243", posto:"ASP PM",    nome:"ROBERTO SILVA ALCANTARA"},
+  {num:"244", posto:"ASP PM",    nome:"MARCO ANTONIO DA SILVA ALMEIDA"},
+  {num:"245", posto:"ASP PM",    nome:"ADRIANO ROCHA DOS SANTOS"},
+  {num:"246", posto:"ASP PM",    nome:"CARLOS JOSE DA SILVA COSTA"},
+  {num:"247", posto:"ASP PM",    nome:"PAULO SERGIO DE SOUZA LIMA"},
+  {num:"248", posto:"ASP PM",    nome:"WELLINGTON ANTÔNIO NASCIMENTO DE OLIVEIRA"},
+  {num:"249", posto:"ASP PM",    nome:"MARCELO RENATO SIQUARA SILVA"},
+  {num:"250", posto:"ASP PM",    nome:"GILSON SANTOS DE SANTANA"},
+  {num:"251", posto:"ASP PM",    nome:"ROBSON ROBERTO OLIVEIRA SILVA"},
+  {num:"252", posto:"ASP PM",    nome:"CLAUDIO OLIVEIRA DA CRUZ"},
+  {num:"253", posto:"ASP PM",    nome:"MARINALDO DA SILVA SANTOS"},
+  {num:"254", posto:"ASP PM",    nome:"ADRIANA SILVA SOUSA"},
+  {num:"255", posto:"ASP PM",    nome:"ROSANGELA SILVA MACHADO"},
+  {num:"256", posto:"ASP PM",    nome:"FLORISVALDO BARBOSA DOS SANTOS FILHO"},
+  {num:"257", posto:"ASP PM",    nome:"MARA RUBIA PALMA SANTOS"},
+  {num:"258", posto:"ASP PM",    nome:"VALMIR FELIX DASILVA JUNIOR"},
+  {num:"259", posto:"ASP PM",    nome:"AMERICO BITENCOURT DA SILVA JUNIOR"},
+  {num:"260", posto:"ASP PM",    nome:"IDALIA DOS SANTOS DESIDERIO"},
+  {num:"261", posto:"ASP PM",    nome:"WELINGTON CRUZ SILVA"},
+  {num:"262", posto:"ASP PM",    nome:"CARLA SENA NASCIMENTO DOS SANTOS"},
+  {num:"263", posto:"ASP PM",    nome:"CINTIA DANTAS LIMA DOS ANJOS"},
+  {num:"264", posto:"ASP PM",    nome:"CRISTIANE DE CARVALHO ALVES SANTOS"},
+  {num:"265", posto:"ASP PM",    nome:"ADEILSON FRANCISCO DOS SANTOS"},
+  {num:"266", posto:"ASP PM",    nome:"MARCIO FERREIRA DE LIMA OLIVEIRA"},
+  {num:"267", posto:"ASP PM",    nome:"RITA DE CASSIA SANTOS SILVA"},
+  {num:"268", posto:"ASP PM",    nome:"JAILDO JESUS DOS SANTOS"},
+  {num:"269", posto:"ASP PM",    nome:"DAILDA AZEVEDO MASCARENHAS"},
+  {num:"270", posto:"ASP PM",    nome:"JOAO KLEITON OLIVEIRA NUNES"},
+  {num:"271", posto:"ASP PM",    nome:"DOJIVAL CABRAL DE SOUZA"},
+  {num:"272", posto:"ASP PM",    nome:"BARBARA MARIA ALVES DE SOUZA"},
+  {num:"273", posto:"ASP PM",    nome:"EDSON FERNANDO MIRANDA DOS SANTOS"},
+  {num:"274", posto:"ASP PM",    nome:"EDSON DA PAIXAO SILVA"},
+  {num:"275", posto:"ASP PM",    nome:"LUCIANA SILVA SANTOS BATISTA"},
+  {num:"276", posto:"ASP PM",    nome:"MARISMAR SANTANA DE FRANCA"},
+  {num:"277", posto:"ASP PM",    nome:"LUCIANO MACEDO BORGES"},
+  {num:"278", posto:"ASP PM",    nome:"ANEZIO MARTINS DE SOUZA JUNIOR"},
+  {num:"279", posto:"ASP PM",    nome:"LADISNEI DE OLIVEIRA SANTOS"},
+  {num:"280", posto:"ASP PM",    nome:"GILMAR BARBOSA DOS SANTOS"},
+  {num:"281", posto:"ASP PM",    nome:"NAISE SOUSA SANTOS"},
+  {num:"282", posto:"ASP PM",    nome:"SANDIRLEY SANDES DOS SANTOS"},
+  {num:"283", posto:"ASP PM",    nome:"SIDEVAL NASCIMENTO DE FRANCA"},
+  {num:"284", posto:"ASP PM",    nome:"NEILTON NAZARE MACHADO"},
+  {num:"285", posto:"ASP PM",    nome:"JEAN CARLOS CARDOSO SILVA"},
+  {num:"286", posto:"ASP PM",    nome:"MARCELO COSTA DE QUEIROZ"},
+  {num:"287", posto:"ASP PM",    nome:"FABIANO DE JESUS SENA"},
+  {num:"288", posto:"ASP PM",    nome:"MARCIO BATISTA DOS SANTOS"},
+  {num:"289", posto:"ASP PM",    nome:"JOELMA CRISTIANE ALVES DOS SANTOS"},
+  {num:"290", posto:"ASP PM",    nome:"JANILDES BACELAR COELHO"},
+  {num:"291", posto:"ASP PM",    nome:"TANIA SALES OLIVEIRA"},
+  {num:"292", posto:"ASP PM",    nome:"JOSE FERNANDO DE OLIVEIRA"},
+  {num:"293", posto:"ASP PM",    nome:"CELESTE CARDOZO JURITY"},
+  {num:"294", posto:"ASP PM",    nome:"ALESSANDRO TORRES FERREIRA"},
+  {num:"295", posto:"ASP PM",    nome:"SOLANGE MARIA BISPO DE JESUS"},
+  {num:"296", posto:"ASP PM",    nome:"TERESA DENISE SANTOS REIS"},
+  {num:"297", posto:"ASP PM",    nome:"EMERSON MENESES FERREIRA"},
+  {num:"298", posto:"ASP PM",    nome:"ELIDIO SILVA ALMEIDA"},
+  {num:"299", posto:"ASP PM",    nome:"RENATA ARAUJO SANTOS"},
+  {num:"300", posto:"ASP PM",    nome:"FABIO DO NASCIMENTO SILVA"},
+  {num:"301", posto:"ASP PM",    nome:"MARIA JUNAYR SOUZA SOARES DOS SANTOS"},
+  {num:"302", posto:"ASP PM",    nome:"MARCONIO MOREIRA GUSMAO"},
+  {num:"303", posto:"ASP PM",    nome:"ANTONIO MARCOS GOMES DE ARAUJO"},
+  {num:"304", posto:"ASP PM",    nome:"JARLENE CORREIA LIMA"},
+  {num:"305", posto:"ASP PM",    nome:"JOSAFA MOTA DE ALMEIDA"},
+  {num:"306", posto:"ASP PM",    nome:"JOSE LUIZ COSTA ALCANTARA"},
+  {num:"307", posto:"ASP PM",    nome:"VALMIRA COUTINHO DA SILVA"},
+  {num:"308", posto:"ASP PM",    nome:"LUCIANO DA MOTTA DIAS"},
+  {num:"309", posto:"ASP PM",    nome:"MARIA MADALENA MOURA"},
+  {num:"310", posto:"ASP PM",    nome:"ROSINEIDE OLIVEIRA MATOS"},
+  {num:"311", posto:"ASP PM",    nome:"CRISTIANE DA COSTA SOARES"},
+  {num:"312", posto:"ASP PM",    nome:"GLECIMAIA DE OLIVEIRA"},
+  {num:"313", posto:"ASP PM",    nome:"CLEA NASCIMENTO SANTOS"},
+  {num:"314", posto:"ASP PM",    nome:"JOSE ALBERTO CAMPELLO MORAIS BEZERRA"},
+  {num:"315", posto:"ASP PM",    nome:"GISERNALDO SANDRO DE OLIVEIRA"},
+  {num:"316", posto:"ASP PM",    nome:"VERENA OLIVEIRA DE JESUS"},
+  {num:"317", posto:"ASP PM",    nome:"CLEIDINALVA MARQUES DE SOUZA"},
+  {num:"318", posto:"ASP PM",    nome:"IDELMA ACACIO BARBOSA CERQUEIRA"},
+  {num:"319", posto:"ASP PM",    nome:"ANA LUCIA DE JESUS BARBOSA FONSECA"},
+  {num:"320", posto:"ASP PM",    nome:"CLAUDIO LUIS DOS SANTOS"},
+  {num:"321", posto:"ASP PM",    nome:"GENILDO MUNIZ CERQUEIRA"},
+  {num:"322", posto:"ASP PM",    nome:"SANDRO RENATO BARROS PATEZ"},
+  {num:"323", posto:"ASP PM",    nome:"SILEUZA BARBOSA DUARTE"},
+  {num:"324", posto:"ASP PM",    nome:"SHIRLEY BISPO DOS REIS"},
+  {num:"325", posto:"ASP PM",    nome:"LUIS CARLOS SODRE JACOBINA"},
+  {num:"326", posto:"ASP PM",    nome:"DILSANIA DA SILVA NUNES MACEDO"},
+  {num:"327", posto:"ASP PM",    nome:"LUIZ ANTONIO MATIAS DA PAIXAO"},
+  {num:"329", posto:"ASP PM",    nome:"ANDREA DE JESUS SANTOS"},
+  {num:"330", posto:"ASP PM",    nome:"GLEYDSON ALVES MOTA"},
+  {num:"331", posto:"ASP PM",    nome:"CELIA DA CRUZ SANTOS"},
+  {num:"332", posto:"ASP PM",    nome:"JOAO CARLOS DOS SANTOS DE ASSIS"},
+  {num:"333", posto:"ASP PM",    nome:"CARLA CHRISTIANE OLIVEIRA MENESES"},
+  {num:"334", posto:"ASP PM",    nome:"ANDERSON SANTOS SOUZA"},
+  {num:"335", posto:"ASP PM",    nome:"WAGNER MENDES DE ARAUJO"},
+  {num:"336", posto:"ASP PM",    nome:"EDILEUZA RODRIGUES ANDRADE"},
+  {num:"337", posto:"ASP PM",    nome:"MARCOS JOSE CAVALCANTI DE OLIVEIRA JUNIOR"},
+  {num:"338", posto:"ASP PM",    nome:"JOSÉ NILTON DA SILVA"},
+  {num:"339", posto:"ASP PM",    nome:"ISLANDIA DIAS DE ARAUJO GOIS"},
+  {num:"340", posto:"ASP PM",    nome:"ROSANA SANTOS SOUZA"},
+  {num:"341", posto:"ASP PM",    nome:"ANDREIA DOS SANTOS TORRES"},
+  {num:"342", posto:"ASP PM",    nome:"CLEBER JOAQUIM GUERRA CARVALHO"},
+  {num:"343", posto:"ASP PM",    nome:"ADENICE SANTANA SOUZA"},
+  {num:"344", posto:"ASP PM",    nome:"EVANILDO ALVES DE JESUS"},
+  {num:"345", posto:"ASP PM",    nome:"HIPOLITO BARBOSA SALES"},
+  {num:"346", posto:"ASP PM",    nome:"CLEONICE FERREIRA DOS SANTOS"},
+  {num:"347", posto:"ASP PM",    nome:"JUSSIARA BORGES SANTOS"},
+  {num:"348", posto:"ASP PM",    nome:"VALESCA PATRICIA DA SILVA LIMA"},
+  {num:"349", posto:"ASP PM",    nome:"AILTON CESARIO DOS SANTOS FILHO"},
+  {num:"350", posto:"ASP PM",    nome:"MARCOS FABIANO SILVA DOS SANTOS"},
+  {num:"351", posto:"ASP PM",    nome:"MARIO SERGIO ROCHA DE SANTANA"}
+];
+
+const BASE_URL = 'fotos/';
+
+// ── Carrossel ─────────────────────────────────────────────────────────────
+let carouselIndex = 0;
+let carouselAnim  = null;
+let carouselPos   = 0;
+let lastCarTime   = null;
+const CARD_W      = 104;
+const SPEED_BASE  = 40;   // velocidade normal px/s
+let carouselSpeed = SPEED_BASE;  // velocidade atual (pode ser negativa = esquerda)
+let isDragging    = false; // true durante swipe do carrossel
+
+(function initCarousel() {
+    const track = document.getElementById('carouselTrack');
+    const all   = [...ASPIRANTES, ...ASPIRANTES, ...ASPIRANTES];
+    all.forEach((a, i) => {
+        const card = document.createElement('div');
+        card.className = 'carousel-card';
+        card.dataset.idx = i % ASPIRANTES.length;
+        const ring = document.createElement('div');
+        ring.className = 'photo-ring';
+        const img = document.createElement('img');
+        img.alt = a.nome; img.style.display = 'none';
+        const fallback = document.createElement('div');
+        fallback.className = 'no-photo'; fallback.textContent = '👤';
+        let tried = 0;
+        const exts = ['jpg','jpeg','JPG','JPEG'];
+        function tryNext() {
+            if (tried >= exts.length) { fallback.style.display='flex'; return; }
+            img.src = BASE_URL + a.num + '.' + exts[tried++];
+        }
+        img.onload  = () => { img.style.display='block'; fallback.style.display='none'; };
+        img.onerror = () => tryNext();
+        tryNext();
+        ring.appendChild(img); ring.appendChild(fallback);
+        const posto = document.createElement('div');
+        posto.className = 'card-posto'; posto.textContent = a.posto;
+        const nome = document.createElement('div');
+        nome.className = 'card-name';
+        const partes = a.nome.split(' ');
+        nome.textContent = partes.length > 2 ? partes[0]+' '+partes[partes.length-1] : a.nome;
+        card.appendChild(ring); card.appendChild(posto); card.appendChild(nome);
+
+        // Click/tap: abre menu para escolher slot (mobile) ou destaca (desktop)
+        card.addEventListener('click', (e) => {
+            carouselIndex = parseInt(card.dataset.idx);
+            updateCarouselInfo();
+            // No mobile mostra popup para escolher slot
+            if (window.matchMedia('(pointer:coarse)').matches) {
+                showSlotMenu(parseInt(card.dataset.idx));
+            }
+        });
+
+        // Drag desktop
+        card.setAttribute('draggable', true);
+        card.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('aspirante-idx', i % ASPIRANTES.length);
+            card.classList.add('dragging');
+        });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+
+        track.appendChild(card);
+    });
+    updateCarouselInfo();
+    startCarousel();
+})();
+
+function updateCarouselInfo() {
+    const a = ASPIRANTES[carouselIndex];
+    document.getElementById('ciPosto').textContent = a.posto;
+    document.getElementById('ciName').textContent  = a.nome;
+    document.querySelectorAll('.carousel-card').forEach(c => {
+        c.classList.toggle('active', parseInt(c.dataset.idx) === carouselIndex);
+    });
+}
+
+function startCarousel() {
+    const track    = document.getElementById('carouselTrack');
+    const viewport = track.parentElement;
+    const totalW   = ASPIRANTES.length * CARD_W;
+
+    // Posição inicial: foto 000 centralizada
+    carouselPos = ASPIRANTES.length * CARD_W - (viewport.clientWidth / 2 - CARD_W / 2);
+    if (carouselPos < 0) carouselPos = 0;
+
+    // ── Loop de animação ──
+    function step(ts) {
+        if (!lastCarTime) lastCarTime = ts;
+        const delta = ts - lastCarTime; lastCarTime = ts;
+
+        // Retorna suavemente à velocidade base se não estiver sendo arrastado
+        if (!isDragging) {
+            const diff = SPEED_BASE - carouselSpeed;
+            carouselSpeed += diff * Math.min(delta / 400, 1); // suaviza em ~400ms
+        }
+
+        carouselPos += carouselSpeed * delta / 1000;
+
+        // Loop infinito nos dois sentidos
+        if (carouselPos >= totalW * 2) carouselPos -= totalW;
+        if (carouselPos < 0)           carouselPos += totalW;
+
+        track.style.transform = 'translateX(-' + carouselPos + 'px)';
+
+        const centerX = carouselPos + viewport.clientWidth / 2;
+        const idx     = Math.abs(Math.floor(centerX / CARD_W)) % ASPIRANTES.length;
+        if (idx !== carouselIndex) { carouselIndex = idx; updateCarouselInfo(); }
+
+        carouselAnim = requestAnimationFrame(step);
+    }
+
+    // ── Swipe / Drag ──
+    let isDragging  = false;
+    let dragStartX  = 0;
+    let dragLastX   = 0;
+    let dragLastT   = 0;
+    let dragVel     = 0; // velocidade instantânea do dedo em px/s
+
+    function onDown(e) {
+        isDragging = true;
+        dragStartX = dragLastX = e.touches ? e.touches[0].clientX : e.clientX;
+        dragLastT  = performance.now();
+        dragVel    = 0;
+        lastCarTime = null;
+    }
+
+    function onMove(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x   = e.touches ? e.touches[0].clientX : e.clientX;
+        const now  = performance.now();
+        const dt   = now - dragLastT;
+        const dx   = dragLastX - x; // positivo = mover para esquerda (avançar)
+
+        dragVel    = dt > 0 ? (dx / dt) * 1000 : dragVel; // px/s
+        carouselPos += dx;
+        if (carouselPos >= totalW * 2) carouselPos -= totalW;
+        if (carouselPos < 0)           carouselPos += totalW;
+
+        track.style.transform = 'translateX(-' + carouselPos + 'px)';
+        dragLastX = x;
+        dragLastT = now;
+    }
+
+    function onUp() {
+        if (!isDragging) return;
+        isDragging = false;
+        // Lança o carrossel na velocidade do dedo (limitada a ±600px/s)
+        carouselSpeed = Math.max(-600, Math.min(600, dragVel));
+        lastCarTime   = null;
+    }
+
+    // Touch
+    viewport.addEventListener('touchstart',  onDown, { passive: true });
+    viewport.addEventListener('touchmove',   onMove, { passive: false });
+    viewport.addEventListener('touchend',    onUp);
+    viewport.addEventListener('touchcancel', onUp);
+
+    // Mouse (desktop)
+    viewport.addEventListener('mousedown',   onDown);
+    window.addEventListener('mousemove',    onMove);
+    window.addEventListener('mouseup',      onUp);
+
+    carouselAnim = requestAnimationFrame(step);
+}
+
+// ── Lista rolante ──────────────────────────────────────────────────────────
+(function initRoster() {
+    const track = document.getElementById('rosterTrack');
+    const all   = [...ASPIRANTES, ...ASPIRANTES];
+    all.forEach((a) => {
+        const el = document.createElement('div');
+        el.className = 'roster-item';
+        el.textContent = a.num + '  ' + a.posto + '  ' + a.nome;
+        track.appendChild(el);
+    });
+    const itemH  = 36;
+    const totalH = ASPIRANTES.length * itemH;
+    let pos = 0, animId = null, lastT = null;
+    const spd = 28;
+    function step(ts) {
+        if (!lastT) lastT = ts;
+        pos += spd * (ts - lastT) / 1000; lastT = ts;
+        if (pos >= totalH) pos -= totalH;
+        track.style.transform = 'translateY(-' + pos + 'px)';
+        const idx = Math.floor((pos + track.parentElement.clientHeight/2) / itemH) % ASPIRANTES.length;
+        track.querySelectorAll('.roster-item').forEach((el,i) => {
+            el.classList.toggle('highlight', i % ASPIRANTES.length === idx);
+        });
+        animId = requestAnimationFrame(step);
+    }
+    track.parentElement.addEventListener('pointerdown', () => { cancelAnimationFrame(animId); lastT=null; });
+    track.parentElement.addEventListener('pointerup',    () => { animId = requestAnimationFrame(step); });
+    track.parentElement.addEventListener('pointerleave', () => { if(!animId) animId=requestAnimationFrame(step); });
+    animId = requestAnimationFrame(step);
+})();
+
+// ── Popup mobile para escolher slot ───────────────────────────────────────
+let _menuIdx = null;
+
+function showSlotMenu(idx) {
+    _menuIdx = idx;
+    const a = ASPIRANTES[idx];
+    const p = a.nome.split(' ');
+    document.getElementById('slotMenuName').textContent =
+        a.posto + ' · ' + (p.length > 2 ? p[0] + ' ' + p[p.length-1] : a.nome);
+    document.getElementById('slotMenu').classList.add('show');
+}
+function closeSlotMenu() {
+    document.getElementById('slotMenu').classList.remove('show');
+    _menuIdx = null;
+}
+function slotMenuChoose(side) {
+    if (_menuIdx !== null) fillSlot(side, _menuIdx);
+    closeSlotMenu();
+}
+// Fecha ao clicar fora
+document.getElementById('slotMenu').addEventListener('click', function(e) {
+    if (e.target === this) closeSlotMenu();
+});
+
+// ── Slots de destaque ─────────────────────────────────────────────────────
+function onSlotDragOver(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('drag-over');
+}
+function onSlotDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
+function onSlotDrop(e, side) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    const idx = parseInt(e.dataTransfer.getData('aspirante-idx'));
+    if (!isNaN(idx)) fillSlot(side, idx);
+}
+// ── Firebase: slots em tempo real ─────────────────────────────────────────
+function fillSlot(side, idx) {
+    // Grava no Firebase — todos os usuários verão
+    db.ref('slots/' + side).set({ idx: idx });
+}
+
+function clearSlot(side) {
+    db.ref('slots/' + side).remove();
+}
+
+function applySlot(side, idx) {
+    const a     = ASPIRANTES[idx];
+    const key   = side === 'left' ? 'Left' : 'Right';
+    const imgEl = document.getElementById('slot' + key + 'Img');
+    const label = document.getElementById('slot' + key + 'Label');
+    const slot  = document.getElementById('slot' + key);
+    const exts  = ['jpg','jpeg','JPG','JPEG'];
+    let tried   = 0;
+    function tryNext() {
+        if (tried >= exts.length) { slot.classList.remove('filled'); return; }
+        imgEl.src = 'fotos/' + a.num + '.' + exts[tried++];
+    }
+    imgEl.onload  = () => slot.classList.add('filled');
+    imgEl.onerror = () => tryNext();
+    const p = a.nome.split(' ');
+    label.textContent = a.posto + ' · ' + (p.length > 2 ? p[0] + ' ' + p[p.length-1] : a.nome);
+    tryNext();
+}
+
+function applySlotClear(side) {
+    const key   = side === 'left' ? 'Left' : 'Right';
+    const imgEl = document.getElementById('slot' + key + 'Img');
+    const label = document.getElementById('slot' + key + 'Label');
+    const slot  = document.getElementById('slot' + key);
+    imgEl.src = ''; label.textContent = ''; slot.classList.remove('filled');
+}
+
+// Escuta mudanças em tempo real para ambos os slots
+['left','right'].forEach(side => {
+    db.ref('slots/' + side).on('value', snap => {
+        const data = snap.val();
+        if (data && data.idx !== undefined) {
+            applySlot(side, data.idx);
+        } else {
+            applySlotClear(side);
+        }
+    });
+});
+
+// ── Countdown com data fixa ────────────────────────────────────────────────
+function updateTimer() {
+    const now  = Date.now();
+    const diff = TARGET - now;
+    if (diff <= 0) { showFinished(); return; }
+    const d = Math.floor(diff/86400000),
+          h = Math.floor((diff%86400000)/3600000),
+          m = Math.floor((diff%3600000)/60000),
+          s = Math.floor((diff%60000)/1000);
+    setVal('days',d); setVal('hours',h); setVal('minutes',m); setVal('seconds',s,true);
+    document.getElementById('faltaText').textContent =
+        (d===0&&h===0) ? '⚡ Faltam minutos!' : d===0 ? '🔥 Falta menos de 1 dia!' : 'Faltam';
+    const pct = Math.min(100, Math.max(0, (now-START)/(TARGET-START)*100));
+    document.getElementById('progressFill').style.width = pct.toFixed(1)+'%';
+    document.getElementById('progressPct').textContent  = pct.toFixed(1)+'%';
+}
+
+function setVal(id, val, anim) {
+    const el  = document.getElementById(id);
+    const str = String(val).padStart(2,'0');
+    if (el.textContent !== str) {
+        el.textContent = str;
+        if (anim) { el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick'); setTimeout(()=>el.classList.remove('tick'),150); }
+    }
+}
+
+function showFinished() {
+    document.getElementById('countdownArea').style.display = 'none';
+    document.getElementById('finishedArea').classList.add('show');
+    launchParticles();
+}
+
+function launchParticles() {
+    const wrap = document.getElementById('particles');
+    wrap.classList.add('show'); wrap.innerHTML = '';
+    const colors = ['#d4af37','#f5e080','#8b6f20','#fff8dc','#c0c0c0'];
+    for (let i=0; i<80; i++) {
+        const p = document.createElement('div'); p.className='particle';
+        p.style.left=Math.random()*100+'vw';
+        p.style.background=colors[Math.floor(Math.random()*colors.length)];
+        p.style.width=(3+Math.random()*5)+'px'; p.style.height=(6+Math.random()*10)+'px';
+        p.style.animationDuration=(2+Math.random()*3)+'s';
+        p.style.animationDelay=(Math.random()*2)+'s';
+        wrap.appendChild(p);
+    }
+    setTimeout(()=>{ wrap.classList.remove('show'); wrap.innerHTML=''; }, 7000);
+}
+
+updateTimer();
+setInterval(updateTimer, 1000);
+</script>
+</body>
+</html>
